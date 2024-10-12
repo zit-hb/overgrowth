@@ -2,8 +2,6 @@
 //           Name: torch.as
 //      Developer: Wolfire Games LLC
 //    Script Type: Hotspot
-//    Description:
-//        License: Read below
 //-----------------------------------------------------------------------------
 //
 //   Copyright 2022 Wolfire Games LLC
@@ -22,73 +20,89 @@
 //
 //-----------------------------------------------------------------------------
 
-int light_id = -1;
-int lamp_id = -1;
-vec3 light_color = vec3(3.0f,1.75f,1.75f);
-vec3 light_range = vec3(25.0f);
-bool init_done = false;
+int lightId = -1;
+int lampId = -1;
+bool isInitialized = false;
 
 void Init() {
-    Object@ hotspot_obj = ReadObjectFromID(hotspot.GetID());
-    hotspot_obj.SetScale(0.5f);
+    SetHotspotScale(0.5f);
 }
+
 void Update() {
-    if(!init_done){
-        FindSavedTorch();
-        FindFlameHotspot();
-        init_done = true;
+    if (!isInitialized) {
+        InitializeTorch();
+        isInitialized = true;
     }
-    if(lamp_id == -1 || !ObjectExists(lamp_id)){
+
+    if (lampId == -1 || !ObjectExists(lampId)) {
         CreateTorch();
-    }else if(light_id == -1 || !ObjectExists(light_id)){
+        return;
+    }
+
+    if (lightId == -1 || !ObjectExists(lightId)) {
         Print("No flame hotspot found\n");
-    }else{
-        ItemObject@ io = ReadItemID(lamp_id);
-        Object@ light = ReadObjectFromID(light_id);
-        mat4 torch_transform = io.GetPhysicsTransform();
-        quaternion torch_rotation = QuaternionFromMat4(torch_transform.GetRotationPart());
-        light.SetTranslation(io.GetPhysicsPosition() + (torch_rotation * vec3(0.0f,0.35f,0.0f)) + vec3(0.0f, -0.25f, 0.0f));
+        return;
     }
+
+    UpdateLightPosition();
 }
 
-void CreateTorch(){
-    //This is the torch model that can be equipt.
-    lamp_id = CreateObject("Data/Items/torch.xml", false);
-    Object@ lamp = ReadObjectFromID(lamp_id);
-    ScriptParams@ lamp_params = lamp.GetScriptParams();
-    lamp_params.SetInt("BelongsTo", hotspot.GetID());
-    Object@ hotspot_obj = ReadObjectFromID(hotspot.GetID());
-    lamp.SetTranslation(hotspot_obj.GetTranslation());
-    lamp.SetSelectable(true);
-    lamp.SetTranslatable(true);
-
+void InitializeTorch() {
+    FindSavedTorch();
+    FindFlameHotspot();
 }
 
-void FindSavedTorch(){
-    array<int> all_obj = GetObjectIDsType(_item_object);
-    for(uint i = 0; i < all_obj.size(); i++){
-        Object@ current_obj = ReadObjectFromID(all_obj[i]);
-        ScriptParams@ current_param = current_obj.GetScriptParams();
-        if(current_param.HasParam("BelongsTo")){
-            if(current_param.GetInt("BelongsTo") == hotspot.GetID()){
-                lamp_id = all_obj[i];
-                return;
-            }
+void SetHotspotScale(float scale) {
+    Object@ hotspotObj = ReadObjectFromID(hotspot.GetID());
+    hotspotObj.SetScale(scale);
+}
+
+void CreateTorch() {
+    lampId = CreateObject("Data/Items/torch.xml", false);
+    Object@ lampObj = ReadObjectFromID(lampId);
+    ScriptParams@ lampParams = lampObj.GetScriptParams();
+    lampParams.SetInt("BelongsTo", hotspot.GetID());
+
+    Object@ hotspotObj = ReadObjectFromID(hotspot.GetID());
+    lampObj.SetTranslation(hotspotObj.GetTranslation());
+    lampObj.SetSelectable(true);
+    lampObj.SetTranslatable(true);
+}
+
+void FindSavedTorch() {
+    array<int>@ itemIds = GetObjectIDsType(_item_object);
+    for (uint i = 0; i < itemIds.length(); ++i) {
+        Object@ obj = ReadObjectFromID(itemIds[i]);
+        ScriptParams@ objParams = obj.GetScriptParams();
+        if (objParams.HasParam("BelongsTo") && objParams.GetInt("BelongsTo") == hotspot.GetID()) {
+            lampId = itemIds[i];
+            return;
         }
     }
 }
 
-void FindFlameHotspot(){
-    array<int> all_obj = GetObjectIDsType(_hotspot_object);
-    for(uint i = 0; i < all_obj.size(); i++){
-        Object@ current_obj = ReadObjectFromID(all_obj[i]);
-        ScriptParams@ current_param = current_obj.GetScriptParams();
-        if(current_param.HasParam("FlameTaken")){
-            if(current_param.GetInt("FlameTaken") == 0 || current_param.GetInt("FlameTaken") == hotspot.GetID()){
-                current_param.SetInt("FlameTaken", hotspot.GetID());
-                light_id = all_obj[i];
-                return;
-            }
+void FindFlameHotspot() {
+    array<int>@ hotspotIds = GetObjectIDsType(_hotspot_object);
+    for (uint i = 0; i < hotspotIds.length(); ++i) {
+        Object@ obj = ReadObjectFromID(hotspotIds[i]);
+        ScriptParams@ objParams = obj.GetScriptParams();
+        if (!objParams.HasParam("FlameTaken")) {
+            continue;
+        }
+        int flameTaken = objParams.GetInt("FlameTaken");
+        if (flameTaken == 0 || flameTaken == hotspot.GetID()) {
+            objParams.SetInt("FlameTaken", hotspot.GetID());
+            lightId = hotspotIds[i];
+            return;
         }
     }
+}
+
+void UpdateLightPosition() {
+    ItemObject@ torchItem = ReadItemID(lampId);
+    Object@ lightObj = ReadObjectFromID(lightId);
+    mat4 torchTransform = torchItem.GetPhysicsTransform();
+    quaternion torchRotation = QuaternionFromMat4(torchTransform.GetRotationPart());
+    vec3 newPosition = torchItem.GetPhysicsPosition() + (torchRotation * vec3(0.0f, 0.35f, 0.0f)) + vec3(0.0f, -0.25f, 0.0f);
+    lightObj.SetTranslation(newPosition);
 }

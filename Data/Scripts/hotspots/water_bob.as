@@ -2,8 +2,6 @@
 //           Name: water_bob.as
 //      Developer: Wolfire Games LLC
 //    Script Type: Hotspot
-//    Description:
-//        License: Read below
 //-----------------------------------------------------------------------------
 //
 //   Copyright 2022 Wolfire Games LLC
@@ -22,84 +20,71 @@
 //
 //-----------------------------------------------------------------------------
 
-float translation_scale;
-float rotation_scale;
-float time_scale;
+float translationScale;
+float rotationScale;
+float timeScale;
 
-void Init() {
-}
+array<int> objectIds;
+array<vec3> originalTranslations;
+array<quaternion> originalRotations;
 
 void SetParameters() {
-    params.AddString("Objects","");
-    params.AddFloatSlider("translation_scale",4.0,"min:0,max:5,step:0.001");
-    params.AddFloatSlider("rotation_scale",2.0,"min:0,max:5,step:0.001");
-    params.AddFloatSlider("time_scale",0.2,"min:0,max:2,step:0.001");
+    params.AddString("Objects", "");
+    params.AddFloatSlider("translation_scale", 4.0f, "min:0,max:5,step:0.001");
+    params.AddFloatSlider("rotation_scale", 2.0f, "min:0,max:5,step:0.001");
+    params.AddFloatSlider("time_scale", 0.2f, "min:0,max:2,step:0.001");
 
-    translation_scale = params.GetFloat("translation_scale");
-    rotation_scale = params.GetFloat("rotation_scale");
-    time_scale = params.GetFloat("time_scale");
+    translationScale = params.GetFloat("translation_scale");
+    rotationScale = params.GetFloat("rotation_scale");
+    timeScale = params.GetFloat("time_scale");
+
+    InitializeObjects();
 }
 
-void Reset(){
-}
+void InitializeObjects() {
+    objectIds.resize(0);
+    originalTranslations.resize(0);
+    originalRotations.resize(0);
 
-void Dispose(){
-}
+    TokenIterator tokenIter;
+    tokenIter.Init();
+    string objectsStr = params.GetString("Objects");
 
-vec3 orig_translation;
-quaternion orig_rotation;
-
-void Update(){
-    TokenIterator token_iter;
-    token_iter.Init();
-    string str = params.GetString("Objects");
-    while(token_iter.FindNextToken(str)){
-        int id = atoi(token_iter.GetToken(str));
-        if(ObjectExists(id)){
-          Object@ obj = ReadObjectFromID(id);
-          if(!params.HasParam("SavedTransform")){
-            vec3 translation = obj.GetTranslation();
-            quaternion quat = obj.GetRotation();
-            string transform_str;
-            for(int i=0; i<3; ++i){
-              transform_str += translation[i] + " ";
-            }
-            transform_str += quat.x + " ";
-            transform_str += quat.y + " ";
-            transform_str += quat.z + " ";
-            transform_str += quat.w;
-            params.AddString("SavedTransform", transform_str);
-          } else {
-            string transform_str = params.GetString("SavedTransform");
-            TokenIterator token_iter2;
-            token_iter2.Init();
-            token_iter2.FindNextToken(transform_str);
-            orig_translation[0] = atof(token_iter2.GetToken(transform_str));
-            token_iter2.FindNextToken(transform_str);
-            orig_translation[1] = atof(token_iter2.GetToken(transform_str));
-            token_iter2.FindNextToken(transform_str);
-            orig_translation[2] = atof(token_iter2.GetToken(transform_str));
-            token_iter2.FindNextToken(transform_str);
-            orig_rotation.x = atof(token_iter2.GetToken(transform_str));
-            token_iter2.FindNextToken(transform_str);
-            orig_rotation.y = atof(token_iter2.GetToken(transform_str));
-            token_iter2.FindNextToken(transform_str);
-            orig_rotation.z = atof(token_iter2.GetToken(transform_str));
-            token_iter2.FindNextToken(transform_str);
-            orig_rotation.w = atof(token_iter2.GetToken(transform_str));
-          }
-          /*if(obj.GetEnabled()){
-            DuplicateObject(obj);
-            obj.SetEnabled(false);
-          }*/
-          vec3 pos = orig_translation;
-          pos[1] += (sin(the_time*time_scale) * 0.01 + sin(the_time * 2.7*time_scale) * 0.015 + sin(the_time * 4.3*time_scale) * 0.008)*translation_scale;
-          obj.SetTranslation(pos);
-          quaternion rot;
-          rot = quaternion(vec4(1,0,0,sin(the_time*3.0*time_scale)*0.01*rotation_scale));
-          rot = quaternion(vec4(0,0,1,sin(the_time*3.7*time_scale)*0.01*rotation_scale))*rot;
-          //rot = quaternion(vec4(0,1,0,3.1417 * -0.8)) * rot;
-          obj.SetRotation(rot * orig_rotation);
+    while (tokenIter.FindNextToken(objectsStr)) {
+        int objectId = atoi(tokenIter.GetToken(objectsStr));
+        if (!ObjectExists(objectId)) {
+            continue;
         }
-    }    
+        Object@ obj = ReadObjectFromID(objectId);
+        objectIds.insertLast(objectId);
+        originalTranslations.insertLast(obj.GetTranslation());
+        originalRotations.insertLast(obj.GetRotation());
+    }
+}
+
+void Update() {
+    for (uint i = 0; i < objectIds.length(); ++i) {
+        int objectId = objectIds[i];
+        if (!ObjectExists(objectId)) {
+            continue;
+        }
+        Object@ obj = ReadObjectFromID(objectId);
+        vec3 originalTranslation = originalTranslations[i];
+        quaternion originalRotation = originalRotations[i];
+
+        ApplyBobEffect(obj, originalTranslation, originalRotation);
+    }
+}
+
+void ApplyBobEffect(Object@ obj, const vec3& in originalTranslation, const quaternion& in originalRotation) {
+    float currentTime = the_time * timeScale;
+    float bobOffset = (sin(currentTime) * 0.01f + sin(currentTime * 2.7f) * 0.015f + sin(currentTime * 4.3f) * 0.008f) * translationScale;
+    vec3 newPosition = originalTranslation;
+    newPosition.y += bobOffset;
+    obj.SetTranslation(newPosition);
+
+    quaternion rotationX = quaternion(vec4(1, 0, 0, sin(currentTime * 3.0f) * 0.01f * rotationScale));
+    quaternion rotationZ = quaternion(vec4(0, 0, 1, sin(currentTime * 3.7f) * 0.01f * rotationScale));
+    quaternion newRotation = rotationZ * rotationX * originalRotation;
+    obj.SetRotation(newRotation);
 }
