@@ -24,16 +24,16 @@ float elapsed_time_before_reload = 0.0f;
 bool level_load_triggered = false;
 
 void SetParameters() {
-    params.AddString("NextLevel", "");
-    params.AddFloat("TimeToNextLevel", 5.0f);
+    params.AddString("next_level", "");
+    params.AddFloat("time_to_next_level", 5.0f);
 }
 
 void Update() {
-    string next_level_path = params.GetString("NextLevel");
+    string next_level_path = params.GetString("next_level");
     if (next_level_path == "") {
         return;
     }
-    float time_to_next_level = params.GetFloat("TimeToNextLevel");
+    float time_to_next_level = params.GetFloat("time_to_next_level");
     elapsed_time_before_reload += time_step;
 
     DebugText("soaktest1", "Time til next level: " + (time_to_next_level - elapsed_time_before_reload), 0.5f);
