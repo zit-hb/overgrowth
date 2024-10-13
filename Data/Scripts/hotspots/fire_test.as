@@ -2,7 +2,6 @@
 //           Name: fire_test.as
 //      Developer: Wolfire Games LLC
 //    Script Type: Hotspot
-//    Description:
 //        License: Read below
 //-----------------------------------------------------------------------------
 //

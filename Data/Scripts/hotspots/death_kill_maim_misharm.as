@@ -1,8 +1,7 @@
 //-----------------------------------------------------------------------------
-//           Name: death_kill_main_misharm.as
+//           Name: death_kill_maim_misharm.as
 //      Developer: Wolfire Games LLC
 //    Script Type: Hotspot
-//    Description:
 //        License: Read below
 //-----------------------------------------------------------------------------
 //
@@ -23,10 +22,11 @@
 //-----------------------------------------------------------------------------
 
 void Init() {
+    // No initialization needed
 }
 
-void HandleEvent(string event, MovementObject @mo){
-    if(event == "enter"){
+void HandleEvent(string event, MovementObject @mo) {
+    if (event == "enter") {
         OnEnter(mo);
     }
 }
