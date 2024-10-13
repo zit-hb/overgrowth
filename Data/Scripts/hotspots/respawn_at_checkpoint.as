@@ -27,33 +27,33 @@ void HandleEvent(string event, MovementObject@ mo) {
 }
 
 void OnEnter(MovementObject@ mo) {
-    int checkpointId = FindLatestCheckpoint();
-    if (checkpointId == -1) {
+    int checkpoint_id = FindLatestCheckpoint();
+    if (checkpoint_id == -1) {
         return;
     }
-    RespawnAtCheckpoint(mo, checkpointId);
+    RespawnAtCheckpoint(mo, checkpoint_id);
 }
 
 int FindLatestCheckpoint() {
-    float latestTime = -1.0f;
-    int bestCheckpointId = -1;
-    array<int>@ hotspotIds = GetObjectIDsType(_hotspot_object);
-    for (uint i = 0; i < hotspotIds.length(); ++i) {
-        Object@ obj = ReadObjectFromID(hotspotIds[i]);
-        ScriptParams@ objParams = obj.GetScriptParams();
-        if (objParams.HasParam("LastEnteredTime")) {
-            float currTime = objParams.GetFloat("LastEnteredTime");
-            if (currTime > latestTime) {
-                latestTime = currTime;
-                bestCheckpointId = hotspotIds[i];
+    float latest_time = -1.0f;
+    int best_checkpoint_id = -1;
+    array<int>@ hotspot_ids = GetObjectIDsType(_hotspot_object);
+    for (uint i = 0; i < hotspot_ids.length(); ++i) {
+        Object@ obj = ReadObjectFromID(hotspot_ids[i]);
+        ScriptParams@ obj_params = obj.GetScriptParams();
+        if (obj_params.HasParam("LastEnteredTime")) {
+            float curr_time = obj_params.GetFloat("LastEnteredTime");
+            if (curr_time > latest_time) {
+                latest_time = curr_time;
+                best_checkpoint_id = hotspot_ids[i];
             }
         }
     }
-    return bestCheckpointId;
+    return best_checkpoint_id;
 }
 
-void RespawnAtCheckpoint(MovementObject@ mo, int checkpointId) {
-    Object@ checkpointObj = ReadObjectFromID(checkpointId);
-    mo.position = checkpointObj.GetTranslation();
+void RespawnAtCheckpoint(MovementObject@ mo, int checkpoint_id) {
+    Object@ checkpoint_obj = ReadObjectFromID(checkpoint_id);
+    mo.position = checkpoint_obj.GetTranslation();
     mo.velocity = vec3(0.0f);
 }

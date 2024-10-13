@@ -34,10 +34,10 @@ void OnEnter(MovementObject@ mo) {
 }
 
 void ResetCharacter(MovementObject@ mo) {
-    Object@ charObject = ReadObjectFromID(mo.GetID());
+    Object@ char_object = ReadObjectFromID(mo.GetID());
     mo.Execute("Recover();");
     mo.Execute("Reset();");
-    mo.position = charObject.GetTranslation();
+    mo.position = char_object.GetTranslation();
     mo.velocity = vec3(0.0f);
     mo.Execute("PostReset();");
     mo.Execute("ResetSecondaryAnimation();");

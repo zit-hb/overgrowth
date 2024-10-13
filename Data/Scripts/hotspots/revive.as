@@ -27,8 +27,8 @@ void HandleEvent(string event, MovementObject@ mo) {
 }
 
 void ReviveAllCharacters() {
-    int numCharacters = GetNumCharacters();
-    for (int i = 0; i < numCharacters; ++i) {
+    int num_characters = GetNumCharacters();
+    for (int i = 0; i < num_characters; ++i) {
         MovementObject@ character = ReadCharacter(i);
         character.Execute("RecoverHealth(); cut_throat = false; lives = p_lives; ko_shield = max_ko_shield;");
     }

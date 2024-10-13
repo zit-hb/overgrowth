@@ -20,8 +20,8 @@
 //
 //-----------------------------------------------------------------------------
 
-float elapsedTimeBeforeReload = 0.0f;
-bool levelLoadTriggered = false;
+float elapsed_time_before_reload = 0.0f;
+bool level_load_triggered = false;
 
 void SetParameters() {
     params.AddString("NextLevel", "");
@@ -29,17 +29,17 @@ void SetParameters() {
 }
 
 void Update() {
-    string nextLevelPath = params.GetString("NextLevel");
-    if (nextLevelPath == "") {
+    string next_level_path = params.GetString("NextLevel");
+    if (next_level_path == "") {
         return;
     }
-    float timeToNextLevel = params.GetFloat("TimeToNextLevel");
-    elapsedTimeBeforeReload += time_step;
+    float time_to_next_level = params.GetFloat("TimeToNextLevel");
+    elapsed_time_before_reload += time_step;
 
-    DebugText("soaktest1", "Time til next level: " + (timeToNextLevel - elapsedTimeBeforeReload), 0.5f);
+    DebugText("soaktest1", "Time til next level: " + (time_to_next_level - elapsed_time_before_reload), 0.5f);
 
-    if (elapsedTimeBeforeReload >= timeToNextLevel && !levelLoadTriggered) {
-        levelLoadTriggered = true;
-        level.SendMessage("loadlevel \"" + nextLevelPath + "\"");
+    if (elapsed_time_before_reload >= time_to_next_level && !level_load_triggered) {
+        level_load_triggered = true;
+        level.SendMessage("loadlevel \"" + next_level_path + "\"");
     }
 }

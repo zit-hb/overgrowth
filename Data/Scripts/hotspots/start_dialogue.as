@@ -20,9 +20,9 @@
 //
 //-----------------------------------------------------------------------------
 
-bool hasPlayed = false;
-float visibleAmount = 0.0f;
-float lastGameTime = 0.0f;
+bool has_played = false;
+float visible_amount = 0.0f;
+float last_game_time = 0.0f;
 
 void SetParameters() {
     params.AddString("Dialogue", "Default text");
@@ -37,7 +37,7 @@ void Init() {
 }
 
 void Reset() {
-    hasPlayed = params.HasParam("Start Disabled");
+    has_played = params.HasParam("Start Disabled");
 }
 
 void ReceiveMessage(string msg) {
@@ -46,8 +46,8 @@ void ReceiveMessage(string msg) {
     } else if (msg == "reset") {
         Reset();
     } else if (msg == "activate") {
-        if (hasPlayed) {
-            hasPlayed = false;
+        if (has_played) {
+            has_played = false;
             CheckForAutomaticDialogue();
         }
     }
@@ -66,7 +66,7 @@ void OnEnter(MovementObject@ mo) {
 }
 
 void TryToPlayDialogue() {
-    if (hasPlayed) {
+    if (has_played) {
         return;
     }
     if (!IsPlayerInValidState()) {
@@ -78,12 +78,12 @@ void TryToPlayDialogue() {
     } else {
         level.SendMessage("start_dialogue \"" + dialogue + "\"");
     }
-    hasPlayed = true;
+    has_played = true;
 }
 
 bool IsPlayerInValidState() {
-    int numCharacters = GetNumCharacters();
-    for (int i = 0; i < numCharacters; ++i) {
+    int num_characters = GetNumCharacters();
+    for (int i = 0; i < num_characters; ++i) {
         MovementObject@ mo = ReadCharacter(i);
         if (mo.controlled && mo.QueryIntFunction("int CanPlayDialogue()") == 1) {
             return true;
@@ -97,21 +97,21 @@ void PreDraw(float curr_game_time) {
 }
 
 void UpdateVisibility(float curr_game_time) {
-    const float fadeSpeed = 2.0f;
-    float deltaTime = (curr_game_time - lastGameTime) * fadeSpeed;
-    if (!hasPlayed && level.QueryIntFunction("int HasCameraControl()") == 0) {
-        visibleAmount = min(visibleAmount + deltaTime, 1.0f);
+    const float fade_speed = 2.0f;
+    float delta_time = (curr_game_time - last_game_time) * fade_speed;
+    if (!has_played && level.QueryIntFunction("int HasCameraControl()") == 0) {
+        visible_amount = min(visible_amount + delta_time, 1.0f);
     } else {
-        visibleAmount = max(visibleAmount - deltaTime, 0.0f);
+        visible_amount = max(visible_amount - delta_time, 0.0f);
     }
-    lastGameTime = curr_game_time;
+    last_game_time = curr_game_time;
 }
 
 void Draw() {
     if (params.GetInt("VisibleInGame") == 1 || EditorModeActive()) {
         DrawIcon();
     }
-    if (visibleAmount > 0.0f) {
+    if (visible_amount > 0.0f) {
         DrawExclamationOrQuestionMarks();
     }
 }
@@ -131,25 +131,25 @@ void DrawIcon() {
 void DrawExclamationOrQuestionMarks() {
     vec3 color = GetColorFromParams();
     vec3 offset = params.HasParam("Offset") ? vec3(0.4f, 0.0f, -0.4f) : vec3(0.0f);
-    float animationOffset = sin(the_time * 3.0f) * 0.03f;
+    float animation_offset = sin(the_time * 3.0f) * 0.03f;
     float scale = 1.0f + sin(the_time * 3.0f) * 0.05f;
 
-    DrawIconsForCharacters("Exclamation Character", "Data/Textures/ui/stealth_debug/exclamation_themed.png", color, offset, animationOffset, scale);
-    DrawIconsForCharacters("Question Character", "Data/Textures/ui/stealth_debug/question_themed.png", color, offset, animationOffset, scale);
+    DrawIconsForCharacters("Exclamation Character", "Data/Textures/ui/stealth_debug/exclamation_themed.png", color, offset, animation_offset, scale);
+    DrawIconsForCharacters("Question Character", "Data/Textures/ui/stealth_debug/question_themed.png", color, offset, animation_offset, scale);
 }
 
-void DrawIconsForCharacters(const string& in paramName, const string& in iconPath, const vec3& in color, const vec3& in offset, float animationOffset, float scale) {
-    if (!params.HasParam(paramName)) {
+void DrawIconsForCharacters(const string& in param_name, const string& in icon_path, const vec3& in color, const vec3& in offset, float animation_offset, float scale) {
+    if (!params.HasParam(param_name)) {
         return;
     }
     TokenIterator token_iter;
     token_iter.Init();
-    string str = params.GetString(paramName);
+    string str = params.GetString(param_name);
     while (token_iter.FindNextToken(str)) {
         int id = atoi(token_iter.GetToken(str));
         if (ObjectExists(id) && ReadObjectFromID(id).GetType() == _movement_object) {
-            vec3 position = ReadCharacterID(id).position + vec3(0, 1.6f + animationOffset, 0) + offset;
-            DebugDrawBillboard(iconPath, position, scale, vec4(color, visibleAmount), _delete_on_draw);
+            vec3 position = ReadCharacterID(id).position + vec3(0, 1.6f + animation_offset, 0) + offset;
+            DebugDrawBillboard(icon_path, position, scale, vec4(color, visible_amount), _delete_on_draw);
         }
     }
 }
@@ -175,10 +175,10 @@ vec3 GetColorFromParams() {
 }
 
 void CheckForAutomaticDialogue() {
-    array<int> collidingObjects;
-    level.GetCollidingObjects(hotspot.GetID(), collidingObjects);
-    for (uint i = 0; i < collidingObjects.length(); ++i) {
-        int id = collidingObjects[i];
+    array<int> colliding_objects;
+    level.GetCollidingObjects(hotspot.GetID(), colliding_objects);
+    for (uint i = 0; i < colliding_objects.length(); ++i) {
+        int id = colliding_objects[i];
         if (ObjectExists(id) && ReadObjectFromID(id).GetType() == _movement_object) {
             MovementObject@ mo = ReadCharacterID(id);
             if (mo.controlled && params.GetInt("Automatic") == 1) {

@@ -31,13 +31,13 @@ void HandleEvent(string event, MovementObject@ mo) {
 }
 
 void OnEnter() {
-    string targetName = params.GetString("ObjectNameToDisappear");
-    array<int>@ objectIds = GetObjectIDs();
-    for (uint i = 0; i < objectIds.length(); ++i) {
-        Object@ obj = ReadObjectFromID(objectIds[i]);
-        ScriptParams@ objParams = obj.GetScriptParams();
-        if (objParams.HasParam("Name") && objParams.GetString("Name") == targetName) {
-            DeleteObjectID(objectIds[i]);
+    string target_name = params.GetString("ObjectNameToDisappear");
+    array<int>@ object_ids = GetObjectIDs();
+    for (uint i = 0; i < object_ids.length(); ++i) {
+        Object@ obj = ReadObjectFromID(object_ids[i]);
+        ScriptParams@ obj_params = obj.GetScriptParams();
+        if (obj_params.HasParam("Name") && obj_params.GetString("Name") == target_name) {
+            DeleteObjectID(object_ids[i]);
         }
     }
 }

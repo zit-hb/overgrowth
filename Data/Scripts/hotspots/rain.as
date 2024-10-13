@@ -20,19 +20,19 @@
 //
 //-----------------------------------------------------------------------------
 
-float lightningTime = -1.0f;
-float nextLightningTime = -1.0f;
-float thunderTime = -1.0f;
-float lightningDistance = 0.0f;
+float lightning_time = -1.0f;
+float next_lightning_time = -1.0f;
+float thunder_time = -1.0f;
+float lightning_distance = 0.0f;
 
-vec3 originalSunPosition;
-vec3 originalSunColor;
-float originalSunAmbient;
+vec3 original_sun_position;
+vec3 original_sun_color;
+float original_sun_ambient;
 
 void Init() {
-    originalSunPosition = GetSunPosition();
-    originalSunColor = GetSunColor();
-    originalSunAmbient = GetSunAmbient();
+    original_sun_position = GetSunPosition();
+    original_sun_color = GetSunColor();
+    original_sun_ambient = GetSunAmbient();
 }
 
 void Dispose() {
@@ -40,23 +40,23 @@ void Dispose() {
 }
 
 void Update() {
-    if (nextLightningTime < the_time) {
+    if (next_lightning_time < the_time) {
         ScheduleNextLightning();
     }
-    if (thunderTime != -1.0f && thunderTime < the_time) {
+    if (thunder_time != -1.0f && thunder_time < the_time) {
         PlayThunderSound();
-        thunderTime = -1.0f;
+        thunder_time = -1.0f;
     }
-    if (lightningTime <= the_time) {
+    if (lightning_time <= the_time) {
         UpdateLightningEffects();
     }
 }
 
 void ScheduleNextLightning() {
-    nextLightningTime = the_time + RangedRandomFloat(6.0f, 12.0f);
-    lightningDistance = RangedRandomFloat(0.0f, 1.0f);
-    thunderTime = the_time + lightningDistance * 3.0f;
-    lightningTime = the_time;
+    next_lightning_time = the_time + RangedRandomFloat(6.0f, 12.0f);
+    lightning_distance = RangedRandomFloat(0.0f, 1.0f);
+    thunder_time = the_time + lightning_distance * 3.0f;
+    lightning_time = the_time;
     SetSunPosition(RandomLightningPosition());
 }
 
@@ -68,7 +68,7 @@ vec3 RandomLightningPosition() {
 }
 
 void PlayThunderSound() {
-    if (lightningDistance < 0.3f) {
+    if (lightning_distance < 0.3f) {
         PlaySoundGroup("Data/Sounds/weather/thunder_strike_mike_koenig.xml");
     } else {
         PlaySoundGroup("Data/Sounds/weather/tapio/thunder.xml");
@@ -76,26 +76,26 @@ void PlayThunderSound() {
 }
 
 void UpdateLightningEffects() {
-    float flashAmount = Clamp(1.0f + (lightningTime - the_time) * 0.1f, 0.0f, 1.0f);
+    float flash_amount = Clamp(1.0f + (lightning_time - the_time) * 0.1f, 0.0f, 1.0f);
     SetSunAmbient(1.5f);
 
-    flashAmount = Clamp(1.0f + (lightningTime - the_time) * 2.0f, 0.0f, 1.0f);
-    flashAmount *= RangedRandomFloat(0.8f, 1.2f) * 3.0f;
+    flash_amount = Clamp(1.0f + (lightning_time - the_time) * 2.0f, 0.0f, 1.0f);
+    flash_amount *= RangedRandomFloat(0.8f, 1.2f) * 3.0f;
 
-    vec3 skyTint = mix(GetBaseSkyTint() * 0.7f, vec3(3.0f), flashAmount);
-    SetSkyTint(skyTint);
+    vec3 sky_tint = mix(GetBaseSkyTint() * 0.7f, vec3(3.0f), flash_amount);
+    SetSkyTint(sky_tint);
 
-    SetSunColor(vec3(flashAmount) * 4.0f);
+    SetSunColor(vec3(flash_amount) * 4.0f);
     SetFlareDiffuse(4.0f);
 }
 
 void RestoreSunSettings() {
-    SetSunAmbient(originalSunAmbient);
+    SetSunAmbient(original_sun_ambient);
     SetSkyTint(GetBaseSkyTint());
-    SetSunColor(originalSunColor);
-    SetSunPosition(originalSunPosition);
+    SetSunColor(original_sun_color);
+    SetSunPosition(original_sun_position);
 }
 
-float Clamp(float value, float minValue, float maxValue) {
-    return min(max(value, minValue), maxValue);
+float Clamp(float value, float min_value, float max_value) {
+    return min(max(value, min_value), max_value);
 }

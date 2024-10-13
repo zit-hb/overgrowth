@@ -32,11 +32,11 @@ void SendMessageToParent(const string& in message) {
     if (!params.HasParam("Parent")) {
         return;
     }
-    int parentId = params.GetInt("Parent");
-    if (!ObjectExists(parentId)) {
+    int parent_id = params.GetInt("Parent");
+    if (!ObjectExists(parent_id)) {
         return;
     }
-    Object@ parent = ReadObjectFromID(parentId);
+    Object@ parent = ReadObjectFromID(parent_id);
     parent.ReceiveScriptMessage(message);
 }
 

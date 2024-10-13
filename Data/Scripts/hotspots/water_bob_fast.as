@@ -20,162 +20,162 @@
 //
 //-----------------------------------------------------------------------------
 
-const float kTranslationDefaultScale = 4.0f;
-const float kRotationDefaultScale = 2.0f;
-const float kTimeDefaultScale = 0.2f;
-const float kTranslationMinScale = 0.0f;
-const float kTranslationMaxScale = 5.0f;
-const float kRotationMinScale = 0.0f;
-const float kRotationMaxScale = 5.0f;
-const float kTimeMinScale = 0.0f;
-const float kTimeMaxScale = 2.0f;
+const float k_translation_default_scale = 4.0f;
+const float k_rotation_default_scale = 2.0f;
+const float k_time_default_scale = 0.2f;
+const float k_translation_min_scale = 0.0f;
+const float k_translation_max_scale = 5.0f;
+const float k_rotation_min_scale = 0.0f;
+const float k_rotation_max_scale = 5.0f;
+const float k_time_min_scale = 0.0f;
+const float k_time_max_scale = 2.0f;
 
-float translationScale;
-float rotationScale;
-float timeScale;
+float translation_scale;
+float rotation_scale;
+float time_scale;
 
-array<int> targetObjectIds;
-array<vec3> originalTranslations;
-array<quaternion> originalRotations;
+array<int> target_object_ids;
+array<vec3> original_translations;
+array<quaternion> original_rotations;
 
-bool reloadTargetsQueued = true;
-bool isEditorEnabled = false;
-string newConnectionObjectIdInput;
-bool newConnectionObjectIdValid = false;
-bool newConnectionObjectIdInputWasFocused = false;
+bool reload_targets_queued = true;
+bool is_editor_enabled = false;
+string new_connection_object_id_input;
+bool new_connection_object_id_valid = false;
+bool new_connection_object_id_input_was_focused = false;
 
 void SetParameters() {
-    params.AddFloatSlider("translation_scale", kTranslationDefaultScale, "min:" + kTranslationMinScale + ",max:" + kTranslationMaxScale + ",step:0.001");
-    params.AddFloatSlider("rotation_scale", kRotationDefaultScale, "min:" + kRotationMinScale + ",max:" + kRotationMaxScale + ",step:0.001");
-    params.AddFloatSlider("time_scale", kTimeDefaultScale, "min:" + kTimeMinScale + ",max:" + kTimeMaxScale + ",step:0.001");
+    params.AddFloatSlider("translation_scale", k_translation_default_scale, "min:" + k_translation_min_scale + ",max:" + k_translation_max_scale + ",step:0.001");
+    params.AddFloatSlider("rotation_scale", k_rotation_default_scale, "min:" + k_rotation_min_scale + ",max:" + k_rotation_max_scale + ",step:0.001");
+    params.AddFloatSlider("time_scale", k_time_default_scale, "min:" + k_time_min_scale + ",max:" + k_time_max_scale + ",step:0.001");
 
-    translationScale = params.GetFloat("translation_scale");
-    rotationScale = params.GetFloat("rotation_scale");
-    timeScale = params.GetFloat("time_scale");
+    translation_scale = params.GetFloat("translation_scale");
+    rotation_scale = params.GetFloat("rotation_scale");
+    time_scale = params.GetFloat("time_scale");
 
     ReloadTargets();
 }
 
 void ReloadTargets() {
-    targetObjectIds.resize(0);
-    originalTranslations.resize(0);
-    originalRotations.resize(0);
+    target_object_ids.resize(0);
+    original_translations.resize(0);
+    original_rotations.resize(0);
 
-    array<int> connectedObjectIds = hotspot.GetConnectedObjects();
+    array<int> connected_object_ids = hotspot.GetConnectedObjects();
 
     if (params.HasParam("Objects")) {
-        TokenIterator tokenIter;
-        tokenIter.Init();
-        string objectsStr = params.GetString("Objects");
+        TokenIterator token_iter;
+        token_iter.Init();
+        string objects_str = params.GetString("Objects");
 
-        while (tokenIter.FindNextToken(objectsStr)) {
-            int objectId = atoi(tokenIter.GetToken(objectsStr));
-            if (ObjectExists(objectId) && connectedObjectIds.find(objectId) == -1) {
-                Object@ obj = ReadObjectFromID(objectId);
+        while (token_iter.FindNextToken(objects_str)) {
+            int object_id = atoi(token_iter.GetToken(objects_str));
+            if (ObjectExists(object_id) && connected_object_ids.find(object_id) == -1) {
+                Object@ obj = ReadObjectFromID(object_id);
                 hotspot.ConnectTo(obj);
-                connectedObjectIds.insertLast(objectId);
+                connected_object_ids.insertLast(object_id);
             }
         }
         params.Remove("Objects");
     }
 
-    for (uint i = 0; i < connectedObjectIds.length(); ++i) {
-        int objectId = connectedObjectIds[i];
-        if (!ObjectExists(objectId)) {
+    for (uint i = 0; i < connected_object_ids.length(); ++i) {
+        int object_id = connected_object_ids[i];
+        if (!ObjectExists(object_id)) {
             continue;
         }
-        Object@ obj = ReadObjectFromID(objectId);
-        targetObjectIds.insertLast(objectId);
+        Object@ obj = ReadObjectFromID(object_id);
+        target_object_ids.insertLast(object_id);
 
-        vec3 origTranslation;
-        quaternion origRotation;
+        vec3 orig_translation;
+        quaternion orig_rotation;
 
-        if (!params.HasParam("SavedTransform" + objectId)) {
-            origTranslation = obj.GetTranslation();
-            origRotation = obj.GetRotation();
-            SaveTransform(objectId, origTranslation, origRotation);
+        if (!params.HasParam("SavedTransform" + object_id)) {
+            orig_translation = obj.GetTranslation();
+            orig_rotation = obj.GetRotation();
+            SaveTransform(object_id, orig_translation, orig_rotation);
         } else {
-            LoadSavedTransform(objectId, origTranslation, origRotation);
+            LoadSavedTransform(object_id, orig_translation, orig_rotation);
         }
 
-        originalTranslations.insertLast(origTranslation);
-        originalRotations.insertLast(origRotation);
+        original_translations.insertLast(orig_translation);
+        original_rotations.insertLast(orig_rotation);
     }
 }
 
-void SaveTransform(int objectId, const vec3& in translation, const quaternion& in rotation) {
-    string transformStr = translation.x + " " + translation.y + " " + translation.z + " "
-                        + rotation.x + " " + rotation.y + " " + rotation.z + " " + rotation.w;
-    params.AddString("SavedTransform" + objectId, transformStr);
+void SaveTransform(int object_id, const vec3& in translation, const quaternion& in rotation) {
+    string transform_str = translation.x + " " + translation.y + " " + translation.z + " "
+                         + rotation.x + " " + rotation.y + " " + rotation.z + " " + rotation.w;
+    params.AddString("SavedTransform" + object_id, transform_str);
 }
 
-void LoadSavedTransform(int objectId, vec3& out translation, quaternion& out rotation) {
-    string transformStr = params.GetString("SavedTransform" + objectId);
-    TokenIterator tokenIter;
-    tokenIter.Init();
+void LoadSavedTransform(int object_id, vec3& out translation, quaternion& out rotation) {
+    string transform_str = params.GetString("SavedTransform" + object_id);
+    TokenIterator token_iter;
+    token_iter.Init();
 
-    if (!tokenIter.FindNextToken(transformStr)) return;
-    translation.x = atof(tokenIter.GetToken(transformStr));
-    if (!tokenIter.FindNextToken(transformStr)) return;
-    translation.y = atof(tokenIter.GetToken(transformStr));
-    if (!tokenIter.FindNextToken(transformStr)) return;
-    translation.z = atof(tokenIter.GetToken(transformStr));
-    if (!tokenIter.FindNextToken(transformStr)) return;
-    rotation.x = atof(tokenIter.GetToken(transformStr));
-    if (!tokenIter.FindNextToken(transformStr)) return;
-    rotation.y = atof(tokenIter.GetToken(transformStr));
-    if (!tokenIter.FindNextToken(transformStr)) return;
-    rotation.z = atof(tokenIter.GetToken(transformStr));
-    if (!tokenIter.FindNextToken(transformStr)) return;
-    rotation.w = atof(tokenIter.GetToken(transformStr));
+    if (!token_iter.FindNextToken(transform_str)) return;
+    translation.x = atof(token_iter.GetToken(transform_str));
+    if (!token_iter.FindNextToken(transform_str)) return;
+    translation.y = atof(token_iter.GetToken(transform_str));
+    if (!token_iter.FindNextToken(transform_str)) return;
+    translation.z = atof(token_iter.GetToken(transform_str));
+    if (!token_iter.FindNextToken(transform_str)) return;
+    rotation.x = atof(token_iter.GetToken(transform_str));
+    if (!token_iter.FindNextToken(transform_str)) return;
+    rotation.y = atof(token_iter.GetToken(transform_str));
+    if (!token_iter.FindNextToken(transform_str)) return;
+    rotation.z = atof(token_iter.GetToken(transform_str));
+    if (!token_iter.FindNextToken(transform_str)) return;
+    rotation.w = atof(token_iter.GetToken(transform_str));
 }
 
-void PreDraw(float currGameTime) {
-    if (reloadTargetsQueued) {
+void PreDraw(float curr_game_time) {
+    if (reload_targets_queued) {
         ReloadTargets();
-        reloadTargetsQueued = false;
+        reload_targets_queued = false;
     }
 
-    for (uint i = 0; i < targetObjectIds.length(); ++i) {
-        int objectId = targetObjectIds[i];
-        if (!ObjectExists(objectId)) {
+    for (uint i = 0; i < target_object_ids.length(); ++i) {
+        int object_id = target_object_ids[i];
+        if (!ObjectExists(object_id)) {
             continue;
         }
-        Object@ obj = ReadObjectFromID(objectId);
-        vec3 origTranslation = originalTranslations[i];
-        quaternion origRotation = originalRotations[i];
+        Object@ obj = ReadObjectFromID(object_id);
+        vec3 orig_translation = original_translations[i];
+        quaternion orig_rotation = original_rotations[i];
 
-        ApplyBobEffect(obj, origTranslation, origRotation, currGameTime, objectId);
+        ApplyBobEffect(obj, orig_translation, orig_rotation, curr_game_time, object_id);
     }
 }
 
-void ApplyBobEffect(Object@ obj, const vec3& in origTranslation, const quaternion& in origRotation, float currGameTime, int objectId) {
-    float currYTranslation = (
-        sin(currGameTime * timeScale + objectId) * 0.01f +
-        sin(currGameTime * 2.7f * timeScale + objectId) * 0.015f +
-        sin(currGameTime * 4.3f * timeScale + objectId) * 0.008f
-    ) * translationScale;
+void ApplyBobEffect(Object@ obj, const vec3& in orig_translation, const quaternion& in orig_rotation, float curr_game_time, int object_id) {
+    float curr_y_translation = (
+        sin(curr_game_time * time_scale + object_id) * 0.01f +
+        sin(curr_game_time * 2.7f * time_scale + object_id) * 0.015f +
+        sin(curr_game_time * 4.3f * time_scale + object_id) * 0.008f
+    ) * translation_scale;
 
-    quaternion rotationX = quaternion(vec4(1, 0, 0, sin(currGameTime * 3.0f * timeScale + objectId) * 0.01f * rotationScale));
-    quaternion rotationZ = quaternion(vec4(0, 0, 1, sin(currGameTime * 3.7f * timeScale + objectId) * 0.01f * rotationScale));
-    quaternion newRotation = rotationZ * rotationX * origRotation;
+    quaternion rotation_x = quaternion(vec4(1, 0, 0, sin(curr_game_time * 3.0f * time_scale + object_id) * 0.01f * rotation_scale));
+    quaternion rotation_z = quaternion(vec4(0, 0, 1, sin(curr_game_time * 3.7f * time_scale + object_id) * 0.01f * rotation_scale));
+    quaternion new_rotation = rotation_z * rotation_x * orig_rotation;
 
-    vec3 newPosition = origTranslation;
-    newPosition.y += currYTranslation;
-    obj.SetTranslationRotationFast(newPosition, newRotation);
+    vec3 new_position = orig_translation;
+    new_position.y += curr_y_translation;
+    obj.SetTranslationRotationFast(new_position, new_rotation);
 }
 
 void DrawEditor() {
-    if (!isEditorEnabled) {
+    if (!is_editor_enabled) {
         return;
     }
 
-    bool isUpdated = false;
-    int hotspotId = hotspot.GetID();
-    Object@ hotspotObj = ReadObjectFromID(hotspotId);
+    bool is_updated = false;
+    int hotspot_id = hotspot.GetID();
+    Object@ hotspot_obj = ReadObjectFromID(hotspot_id);
 
     ImGui_PushStyleVar(ImGuiStyleVar_WindowMinSize, vec2(440, 250));
-    ImGui_Begin("Water Bob Hotspot - id: " + hotspotId, isEditorEnabled);
+    ImGui_Begin("Water Bob Hotspot - id: " + hotspot_id, is_editor_enabled);
 
     ImGui_SameLine(ImGui_GetWindowWidth() - 60.0f);
     if (ImGui_SmallButton("Help")) {
@@ -188,22 +188,22 @@ void DrawEditor() {
 
     ImGui_Text("Properties:");
 
-    float newTranslationScale = translationScale;
-    if (ImGui_SliderFloat("Translation Scale", newTranslationScale, kTranslationMinScale, kTranslationMaxScale)) {
-        params.SetFloat("translation_scale", newTranslationScale);
-        isUpdated = true;
+    float new_translation_scale = translation_scale;
+    if (ImGui_SliderFloat("Translation Scale", new_translation_scale, k_translation_min_scale, k_translation_max_scale)) {
+        params.SetFloat("translation_scale", new_translation_scale);
+        is_updated = true;
     }
 
-    float newRotationScale = rotationScale;
-    if (ImGui_SliderFloat("Rotation Scale", newRotationScale, kRotationMinScale, kRotationMaxScale)) {
-        params.SetFloat("rotation_scale", newRotationScale);
-        isUpdated = true;
+    float new_rotation_scale = rotation_scale;
+    if (ImGui_SliderFloat("Rotation Scale", new_rotation_scale, k_rotation_min_scale, k_rotation_max_scale)) {
+        params.SetFloat("rotation_scale", new_rotation_scale);
+        is_updated = true;
     }
 
-    float newTimeScale = timeScale;
-    if (ImGui_SliderFloat("Time Scale", newTimeScale, kTimeMinScale, kTimeMaxScale)) {
-        params.SetFloat("time_scale", newTimeScale);
-        isUpdated = true;
+    float new_time_scale = time_scale;
+    if (ImGui_SliderFloat("Time Scale", new_time_scale, k_time_min_scale, k_time_max_scale)) {
+        params.SetFloat("time_scale", new_time_scale);
+        is_updated = true;
     }
 
     ImGui_NewLine();
@@ -211,26 +211,26 @@ void DrawEditor() {
     ImGui_NewLine();
 
     ImGui_PushItemWidth(150.0f);
-    if (ImGui_InputText("Connect group or prefab with Object Id", newConnectionObjectIdInput, 7, ImGuiInputTextFlags_CharsDecimal)) {
-        int newObjectId = atoi(newConnectionObjectIdInput);
-        newConnectionObjectIdValid = IsValidConnection(newObjectId);
+    if (ImGui_InputText("Connect group or prefab with Object Id", new_connection_object_id_input, 7, ImGuiInputTextFlags_CharsDecimal)) {
+        int new_object_id = atoi(new_connection_object_id_input);
+        new_connection_object_id_valid = IsValidConnection(new_object_id);
     }
     ImGui_PopItemWidth();
 
-    bool connectTriggered = false;
+    bool connect_triggered = false;
     if (ImGui_Button("Connect")) {
-        connectTriggered = true;
+        connect_triggered = true;
     }
 
-    if (connectTriggered && newConnectionObjectIdValid) {
-        int newObjectId = atoi(newConnectionObjectIdInput);
-        hotspot.ConnectTo(ReadObjectFromID(newObjectId));
-        newConnectionObjectIdInput = "";
-        newConnectionObjectIdValid = false;
-        reloadTargetsQueued = true;
+    if (connect_triggered && new_connection_object_id_valid) {
+        int new_object_id = atoi(new_connection_object_id_input);
+        hotspot.ConnectTo(ReadObjectFromID(new_object_id));
+        new_connection_object_id_input = "";
+        new_connection_object_id_valid = false;
+        reload_targets_queued = true;
     }
 
-    if (!newConnectionObjectIdValid && newConnectionObjectIdInput != "") {
+    if (!new_connection_object_id_valid && new_connection_object_id_input != "") {
         ImGui_TextColored(vec4(1.0f, 0.5f, 0.0f, 1.0f), "Invalid Object ID");
     }
 
@@ -239,40 +239,40 @@ void DrawEditor() {
     ImGui_End();
     ImGui_PopStyleVar();
 
-    if (isUpdated) {
+    if (is_updated) {
         SetParameters();
     }
 }
 
-bool IsValidConnection(int objectId) {
-    if (objectId == hotspot.GetID()) {
+bool IsValidConnection(int object_id) {
+    if (object_id == hotspot.GetID()) {
         return false;
     }
-    if (!ObjectExists(objectId)) {
+    if (!ObjectExists(object_id)) {
         return false;
     }
-    Object@ obj = ReadObjectFromID(objectId);
+    Object@ obj = ReadObjectFromID(object_id);
     return AcceptConnectionsTo(obj);
 }
 
 void DisplayConnectedObjects() {
-    array<int> connectedObjectIds = hotspot.GetConnectedObjects();
+    array<int> connected_object_ids = hotspot.GetConnectedObjects();
 
     ImGui_NewLine();
     ImGui_Text("Connected Objects:");
     ImGui_Indent();
 
-    for (uint i = 0; i < connectedObjectIds.length(); ++i) {
-        int objectId = connectedObjectIds[i];
-        ImGui_Text("Object " + objectId);
+    for (uint i = 0; i < connected_object_ids.length(); ++i) {
+        int object_id = connected_object_ids[i];
+        ImGui_Text("Object " + object_id);
         ImGui_SameLine();
         if (ImGui_SmallButton("X###disconnect_" + i)) {
-            hotspot.Disconnect(ReadObjectFromID(objectId));
-            reloadTargetsQueued = true;
+            hotspot.Disconnect(ReadObjectFromID(object_id));
+            reload_targets_queued = true;
         }
     }
 
-    if (connectedObjectIds.length() == 0) {
+    if (connected_object_ids.length() == 0) {
         ImGui_Text("None");
     }
 
@@ -280,34 +280,34 @@ void DisplayConnectedObjects() {
 }
 
 bool AcceptConnectionsTo(Object@ other) {
-    int otherType = other.GetType();
-    return otherType == _env_object || otherType == _decal_object || otherType == _hotspot_object ||
-           otherType == _group || otherType == _item_object || otherType == _ambient_sound_object ||
-           otherType == _dynamic_light_object || otherType == _prefab;
+    int other_type = other.GetType();
+    return other_type == _env_object || other_type == _decal_object || other_type == _hotspot_object ||
+           other_type == _group || other_type == _item_object || other_type == _ambient_sound_object ||
+           other_type == _dynamic_light_object || other_type == _prefab;
 }
 
 void Dispose() {
-    for (uint i = 0; i < targetObjectIds.length(); ++i) {
-        int objectId = targetObjectIds[i];
-        if (!ObjectExists(objectId)) {
+    for (uint i = 0; i < target_object_ids.length(); ++i) {
+        int object_id = target_object_ids[i];
+        if (!ObjectExists(object_id)) {
             continue;
         }
-        Object@ obj = ReadObjectFromID(objectId);
-        ResetToSavedTransform(obj, objectId);
+        Object@ obj = ReadObjectFromID(object_id);
+        ResetToSavedTransform(obj, object_id);
     }
 }
 
-void ResetToSavedTransform(Object@ obj, int objectId) {
-    vec3 origTranslation;
-    quaternion origRotation;
-    if (params.HasParam("SavedTransform" + objectId)) {
-        LoadSavedTransform(objectId, origTranslation, origRotation);
-        obj.SetTranslationRotationFast(origTranslation, origRotation);
+void ResetToSavedTransform(Object@ obj, int object_id) {
+    vec3 orig_translation;
+    quaternion orig_rotation;
+    if (params.HasParam("SavedTransform" + object_id)) {
+        LoadSavedTransform(object_id, orig_translation, orig_rotation);
+        obj.SetTranslationRotationFast(orig_translation, orig_rotation);
     }
 }
 
 void LaunchCustomGUI() {
-    isEditorEnabled = true;
+    is_editor_enabled = true;
 }
 
 bool ObjectInspectorReadOnly() {

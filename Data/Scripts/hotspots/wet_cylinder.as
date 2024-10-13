@@ -20,8 +20,8 @@
 //
 //-----------------------------------------------------------------------------
 
-int waterSurfaceId = -1;
-int waterDecalId = -1;
+int water_surface_id = -1;
+int water_decal_id = -1;
 
 void SetParameters() {
     params.AddFloatSlider("Wave Density", 0.25f, "min:0,max:1,step:0.01");
@@ -30,8 +30,8 @@ void SetParameters() {
 }
 
 void Dispose() {
-    DeleteObjectById(waterDecalId);
-    DeleteObjectById(waterSurfaceId);
+    DeleteObjectById(water_decal_id);
+    DeleteObjectById(water_surface_id);
 }
 
 void Update() {
@@ -44,43 +44,47 @@ void UpdateWaterSurface() {
     if (params.HasParam("Invisible")) {
         return;
     }
-    if (waterSurfaceId == -1) {
-        waterSurfaceId = CreateObject("Data/Objects/water_cylinder.xml", true);
+    if (water_surface_id == -1) {
+        water_surface_id = CreateObject("Data/Objects/water_cylinder.xml", true);
     }
-    Object@ waterSurfaceObj = ReadObjectFromID(waterSurfaceId);
-    Object@ hotspotObj = ReadObjectFromID(hotspot.GetID());
-    waterSurfaceObj.SetTranslation(hotspotObj.GetTranslation());
-    waterSurfaceObj.SetRotation(hotspotObj.GetRotation());
-    waterSurfaceObj.SetScale(hotspotObj.GetScale() * 2.0f);
+    Object@ water_surface_obj = ReadObjectFromID(water_surface_id);
+    Object@ hotspot_obj = ReadObjectFromID(hotspot.GetID());
+    water_surface_obj.SetTranslation(hotspot_obj.GetTranslation());
+    water_surface_obj.SetRotation(hotspot_obj.GetRotation());
+    water_surface_obj.SetScale(hotspot_obj.GetScale() * 2.0f);
 
-    vec3 tint = vec3(params.GetFloat("Wave Height"), params.GetFloat("Wave Density"), params.GetFloat("Water Fog"));
-    waterSurfaceObj.SetTint(tint);
+    vec3 tint = vec3(
+        params.GetFloat("Wave Height"),
+        params.GetFloat("Wave Density"),
+        params.GetFloat("Water Fog")
+    );
+    water_surface_obj.SetTint(tint);
 }
 
 void UpdateWaterDecal() {
-    if (waterDecalId == -1) {
-        waterDecalId = CreateObject("Data/Objects/Decals/water_fog.xml", true);
+    if (water_decal_id == -1) {
+        water_decal_id = CreateObject("Data/Objects/Decals/water_fog.xml", true);
     }
-    Object@ waterDecalObj = ReadObjectFromID(waterDecalId);
-    Object@ hotspotObj = ReadObjectFromID(hotspot.GetID());
-    waterDecalObj.SetTranslation(hotspotObj.GetTranslation());
-    waterDecalObj.SetRotation(hotspotObj.GetRotation());
-    waterDecalObj.SetScale(hotspotObj.GetScale() * 4.0f);
+    Object@ water_decal_obj = ReadObjectFromID(water_decal_id);
+    Object@ hotspot_obj = ReadObjectFromID(hotspot.GetID());
+    water_decal_obj.SetTranslation(hotspot_obj.GetTranslation());
+    water_decal_obj.SetRotation(hotspot_obj.GetRotation());
+    water_decal_obj.SetScale(hotspot_obj.GetScale() * 4.0f);
 }
 
 void HandleCollisions() {
-    array<int> collidingObjects;
-    level.GetCollidingObjects(hotspot.GetID(), collidingObjects);
-    for (uint i = 0; i < collidingObjects.length(); ++i) {
-        int objectId = collidingObjects[i];
-        if (!ObjectExists(objectId)) {
+    array<int> colliding_objects;
+    level.GetCollidingObjects(hotspot.GetID(), colliding_objects);
+    for (uint i = 0; i < colliding_objects.length(); ++i) {
+        int object_id = colliding_objects[i];
+        if (!ObjectExists(object_id)) {
             continue;
         }
-        Object@ obj = ReadObjectFromID(objectId);
+        Object@ obj = ReadObjectFromID(object_id);
         if (obj.GetType() != _movement_object) {
             continue;
         }
-        MovementObject@ mo = ReadCharacterID(objectId);
+        MovementObject@ mo = ReadCharacterID(object_id);
         mo.Execute("WaterIntersect(" + hotspot.GetID() + ");");
         if (params.HasParam("Lethal")) {
             mo.Execute("zone_killed=1; TakeDamage(1.0f);");
@@ -88,9 +92,9 @@ void HandleCollisions() {
     }
 }
 
-void DeleteObjectById(int& inout objectId) {
-    if (objectId != -1) {
-        QueueDeleteObjectID(objectId);
-        objectId = -1;
+void DeleteObjectById(int& inout object_id) {
+    if (object_id != -1) {
+        QueueDeleteObjectID(object_id);
+        object_id = -1;
     }
 }

@@ -40,8 +40,8 @@ void OnEnter(MovementObject@ mo) {
     if (!mo.controlled) {
         return;
     }
-    string displayText = params.GetString("DisplayText");
-    level.SendMessage("displaytext \"" + displayText + "\"");
+    string display_text = params.GetString("DisplayText");
+    level.SendMessage("displaytext \"" + display_text + "\"");
 }
 
 void OnExit(MovementObject@ mo) {

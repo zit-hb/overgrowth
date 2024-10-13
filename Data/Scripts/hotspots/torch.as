@@ -20,26 +20,26 @@
 //
 //-----------------------------------------------------------------------------
 
-int lightId = -1;
-int lampId = -1;
-bool isInitialized = false;
+int light_id = -1;
+int lamp_id = -1;
+bool is_initialized = false;
 
 void Init() {
     SetHotspotScale(0.5f);
 }
 
 void Update() {
-    if (!isInitialized) {
+    if (!is_initialized) {
         InitializeTorch();
-        isInitialized = true;
+        is_initialized = true;
     }
 
-    if (lampId == -1 || !ObjectExists(lampId)) {
+    if (lamp_id == -1 || !ObjectExists(lamp_id)) {
         CreateTorch();
         return;
     }
 
-    if (lightId == -1 || !ObjectExists(lightId)) {
+    if (light_id == -1 || !ObjectExists(light_id)) {
         Print("No flame hotspot found\n");
         return;
     }
@@ -53,56 +53,56 @@ void InitializeTorch() {
 }
 
 void SetHotspotScale(float scale) {
-    Object@ hotspotObj = ReadObjectFromID(hotspot.GetID());
-    hotspotObj.SetScale(scale);
+    Object@ hotspot_obj = ReadObjectFromID(hotspot.GetID());
+    hotspot_obj.SetScale(scale);
 }
 
 void CreateTorch() {
-    lampId = CreateObject("Data/Items/torch.xml", false);
-    Object@ lampObj = ReadObjectFromID(lampId);
-    ScriptParams@ lampParams = lampObj.GetScriptParams();
-    lampParams.SetInt("BelongsTo", hotspot.GetID());
+    lamp_id = CreateObject("Data/Items/torch.xml", false);
+    Object@ lamp_obj = ReadObjectFromID(lamp_id);
+    ScriptParams@ lamp_params = lamp_obj.GetScriptParams();
+    lamp_params.SetInt("BelongsTo", hotspot.GetID());
 
-    Object@ hotspotObj = ReadObjectFromID(hotspot.GetID());
-    lampObj.SetTranslation(hotspotObj.GetTranslation());
-    lampObj.SetSelectable(true);
-    lampObj.SetTranslatable(true);
+    Object@ hotspot_obj = ReadObjectFromID(hotspot.GetID());
+    lamp_obj.SetTranslation(hotspot_obj.GetTranslation());
+    lamp_obj.SetSelectable(true);
+    lamp_obj.SetTranslatable(true);
 }
 
 void FindSavedTorch() {
-    array<int>@ itemIds = GetObjectIDsType(_item_object);
-    for (uint i = 0; i < itemIds.length(); ++i) {
-        Object@ obj = ReadObjectFromID(itemIds[i]);
-        ScriptParams@ objParams = obj.GetScriptParams();
-        if (objParams.HasParam("BelongsTo") && objParams.GetInt("BelongsTo") == hotspot.GetID()) {
-            lampId = itemIds[i];
+    array<int>@ item_ids = GetObjectIDsType(_item_object);
+    for (uint i = 0; i < item_ids.length(); ++i) {
+        Object@ obj = ReadObjectFromID(item_ids[i]);
+        ScriptParams@ obj_params = obj.GetScriptParams();
+        if (obj_params.HasParam("BelongsTo") && obj_params.GetInt("BelongsTo") == hotspot.GetID()) {
+            lamp_id = item_ids[i];
             return;
         }
     }
 }
 
 void FindFlameHotspot() {
-    array<int>@ hotspotIds = GetObjectIDsType(_hotspot_object);
-    for (uint i = 0; i < hotspotIds.length(); ++i) {
-        Object@ obj = ReadObjectFromID(hotspotIds[i]);
-        ScriptParams@ objParams = obj.GetScriptParams();
-        if (!objParams.HasParam("FlameTaken")) {
+    array<int>@ hotspot_ids = GetObjectIDsType(_hotspot_object);
+    for (uint i = 0; i < hotspot_ids.length(); ++i) {
+        Object@ obj = ReadObjectFromID(hotspot_ids[i]);
+        ScriptParams@ obj_params = obj.GetScriptParams();
+        if (!obj_params.HasParam("FlameTaken")) {
             continue;
         }
-        int flameTaken = objParams.GetInt("FlameTaken");
-        if (flameTaken == 0 || flameTaken == hotspot.GetID()) {
-            objParams.SetInt("FlameTaken", hotspot.GetID());
-            lightId = hotspotIds[i];
+        int flame_taken = obj_params.GetInt("FlameTaken");
+        if (flame_taken == 0 || flame_taken == hotspot.GetID()) {
+            obj_params.SetInt("FlameTaken", hotspot.GetID());
+            light_id = hotspot_ids[i];
             return;
         }
     }
 }
 
 void UpdateLightPosition() {
-    ItemObject@ torchItem = ReadItemID(lampId);
-    Object@ lightObj = ReadObjectFromID(lightId);
-    mat4 torchTransform = torchItem.GetPhysicsTransform();
-    quaternion torchRotation = QuaternionFromMat4(torchTransform.GetRotationPart());
-    vec3 newPosition = torchItem.GetPhysicsPosition() + (torchRotation * vec3(0.0f, 0.35f, 0.0f)) + vec3(0.0f, -0.25f, 0.0f);
-    lightObj.SetTranslation(newPosition);
+    ItemObject@ torch_item = ReadItemID(lamp_id);
+    Object@ light_obj = ReadObjectFromID(light_id);
+    mat4 torch_transform = torch_item.GetPhysicsTransform();
+    quaternion torch_rotation = QuaternionFromMat4(torch_transform.GetRotationPart());
+    vec3 new_position = torch_item.GetPhysicsPosition() + (torch_rotation * vec3(0.0f, 0.35f, 0.0f)) + vec3(0.0f, -0.25f, 0.0f);
+    light_obj.SetTranslation(new_position);
 }

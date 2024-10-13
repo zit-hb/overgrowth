@@ -20,9 +20,9 @@
 //
 //-----------------------------------------------------------------------------
 
-TextureAssetRef testTexture1;
-TextureAssetRef testTexture2;
-string clipboardInputText;
+TextureAssetRef test_texture1;
+TextureAssetRef test_texture2;
+string clipboard_input_text;
 
 void Init() {
     // Initialization if needed
@@ -43,20 +43,20 @@ void DrawEditor() {
 }
 
 void LoadTextures() {
-    if (!testTexture1.IsValid()) {
-        testTexture1 = LoadTexture("Data/Textures/ya.tga");
+    if (!test_texture1.IsValid()) {
+        test_texture1 = LoadTexture("Data/Textures/ya.tga");
     }
-    if (!testTexture2.IsValid()) {
-        testTexture2 = LoadTexture("Data/Textures/water_foam.jpg");
+    if (!test_texture2.IsValid()) {
+        test_texture2 = LoadTexture("Data/Textures/water_foam.jpg");
     }
 }
 
 void HandleClipboard() {
     ImGui_Text(ImGui_GetClipboardText());
-    ImGui_InputText("", clipboardInputText, 64);
+    ImGui_InputText("", clipboard_input_text, 64);
     ImGui_SameLine();
     if (ImGui_SmallButton("Put text in clipboard")) {
-        ImGui_SetClipboardText(clipboardInputText);
+        ImGui_SetClipboardText(clipboard_input_text);
     }
 }
 
@@ -80,7 +80,7 @@ void DrawPrimitives() {
     ImDrawList_AddCircleFilled(vec2(300.0f, 300.0f), 200.0f, ImGui_GetColorU32(ImGuiCol_TitleBg), 48);
     ImDrawList_AddText(vec2(300.0f, 300.0f), ImGui_GetColorU32(1.0f, 0.0f, 1.0f, 1.0f), "THIS IS A TEST!!!!");
     ImDrawList_AddImage(
-        testTexture1,
+        test_texture1,
         vec2(400.0f, 300.0f),
         vec2(500.0f, 400.0f),
         vec2(0.0f),
@@ -88,7 +88,7 @@ void DrawPrimitives() {
         ImGui_GetColorU32(1.0f, 0.0f, 0.0f, 1.0f)
     );
     ImDrawList_AddImageQuad(
-        testTexture1,
+        test_texture1,
         vec2(150.0f, 200.0f),
         vec2(500.0f, 150.0f),
         vec2(400.0f, 450.0f),
@@ -100,7 +100,7 @@ void DrawPrimitives() {
         ImGui_GetColorU32(0.0f, 1.0f, 0.0f, 1.0f)
     );
     ImDrawList_AddImageRounded(
-        testTexture2,
+        test_texture2,
         vec2(500.0f, 300.0f),
         vec2(600.0f, 400.0f),
         vec2(0.0f),

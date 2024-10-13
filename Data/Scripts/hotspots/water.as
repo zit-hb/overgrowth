@@ -21,14 +21,14 @@
 //-----------------------------------------------------------------------------
 
 const int _ragdoll_state = 4;
-const int headBone = 30;
-const float underWaterInterval = 0.5f;
-const float timeBeforeDrowning = 10.0f;
+const int head_bone = 30;
+const float under_water_interval = 0.5f;
+const float time_before_drowning = 10.0f;
 
 array<Victim@> victims;
-float timeElapsed = 0.0f;
-float updateInterval = 0.001f;
-Object@ hotspotObj = ReadObjectFromID(hotspot.GetID());
+float time_elapsed = 0.0f;
+float update_interval = 0.001f;
+Object@ hotspot_obj = ReadObjectFromID(hotspot.GetID());
 
 void SetParameters() {
     params.AddFloatSlider("XVel", 0.0f, "min:-10.0,max:10.0,step:0.1,text_mult:10");
@@ -71,8 +71,8 @@ void Update() {
         return;
     }
 
-    timeElapsed += time_step;
-    if (timeElapsed <= updateInterval) {
+    time_elapsed += time_step;
+    if (time_elapsed <= update_interval) {
         return;
     }
 
@@ -84,34 +84,34 @@ void Update() {
             HandleRagdollInWater(victim);
         }
     }
-    timeElapsed = 0.0f;
+    time_elapsed = 0.0f;
 }
 
 void HandleCharacterInWater(Victim@ victim) {
-    vec3 charPos = victim.character.position;
-    float waterSurfaceY = hotspotObj.GetTranslation().y + (2.0f * hotspotObj.GetScale().y);
-    vec3 hotspotTop = vec3(charPos.x, waterSurfaceY, charPos.z);
-    vec3 ground = col.GetRayCollision(charPos, vec3(charPos.x, charPos.y - 2.0f, charPos.z));
-    float waterDepth = distance(hotspotTop, ground);
+    vec3 char_pos = victim.character.position;
+    float water_surface_y = hotspot_obj.GetTranslation().y + (2.0f * hotspot_obj.GetScale().y);
+    vec3 hotspot_top = vec3(char_pos.x, water_surface_y, char_pos.z);
+    vec3 ground = col.GetRayCollision(char_pos, vec3(char_pos.x, char_pos.y - 2.0f, char_pos.z));
+    float water_depth = distance(hotspot_top, ground);
 
-    CheckHeadUnderWater(victim, hotspotTop);
+    CheckHeadUnderWater(victim, hotspot_top);
 
     if (victim.character.GetBoolVar("on_ground")) {
-        AdjustCharacterSpeed(victim, waterDepth);
+        AdjustCharacterSpeed(victim, water_depth);
     } else {
         ApplyWaterResistance(victim);
     }
 
-    ToggleRollingAbility(victim, waterDepth);
+    ToggleRollingAbility(victim, water_depth);
 }
 
 void HandleRagdollInWater(Victim@ victim) {
     if (victim.character.GetBoolVar("frozen")) {
         return;
     }
-    vec3 charPos = victim.character.position;
-    float waterSurfaceY = hotspotObj.GetTranslation().y + (2.0f * hotspotObj.GetScale().y);
-    vec3 hotspotTop = vec3(charPos.x, waterSurfaceY, charPos.z);
+    vec3 char_pos = victim.character.position;
+    float water_surface_y = hotspot_obj.GetTranslation().y + (2.0f * hotspot_obj.GetScale().y);
+    vec3 hotspot_top = vec3(char_pos.x, water_surface_y, char_pos.z);
 
     Skeleton@ skeleton = victim.character.rigged_object().skeleton();
     for (int i = 0; i < skeleton.NumBones(); ++i) {
@@ -119,77 +119,77 @@ void HandleRagdollInWater(Victim@ victim) {
             continue;
         }
         mat4 transform = skeleton.GetBoneTransform(i);
-        if (transform.GetTranslationPart().y < hotspotTop.y) {
-            ApplyBuoyancy(victim, i, charPos, hotspotTop);
+        if (transform.GetTranslationPart().y < hotspot_top.y) {
+            ApplyBuoyancy(victim, i, char_pos, hotspot_top);
         }
     }
     victim.character.rigged_object().SetRagdollDamping(0.99f);
 }
 
-void CheckHeadUnderWater(Victim@ victim, const vec3& in hotspotTop) {
+void CheckHeadUnderWater(Victim@ victim, const vec3& in hotspot_top) {
     Skeleton@ skeleton = victim.character.rigged_object().skeleton();
-    mat4 headTransform = skeleton.GetBoneTransform(headBone);
-    if (headTransform.GetTranslationPart().y < hotspotTop.y) {
-        victim.headUnderWater = true;
-        victim.headUnderWaterTimer += time_step;
-        if (victim.headUnderWaterTimer > timeBeforeDrowning) {
+    mat4 head_transform = skeleton.GetBoneTransform(head_bone);
+    if (head_transform.GetTranslationPart().y < hotspot_top.y) {
+        victim.head_under_water = true;
+        victim.head_under_water_timer += time_step;
+        if (victim.head_under_water_timer > time_before_drowning) {
             victim.character.Execute("SetKnockedOut(_dead); Ragdoll(_RGDL_INJURED);");
             PlayUnderwaterSound(victim.character.position, 0.5f);
         }
     } else {
-        victim.headUnderWater = false;
-        victim.headUnderWaterTimer = 0.0f;
+        victim.head_under_water = false;
+        victim.head_under_water_timer = 0.0f;
     }
 }
 
-void AdjustCharacterSpeed(Victim@ victim, float waterDepth) {
-    float newSpeed = max(0.1f, 1.0f - waterDepth);
-    victim.SetCharacterSpeed(newSpeed);
+void AdjustCharacterSpeed(Victim@ victim, float water_depth) {
+    float new_speed = max(0.1f, 1.0f - water_depth);
+    victim.SetCharacterSpeed(new_speed);
 }
 
 void ApplyWaterResistance(Victim@ victim) {
-    float inWaterResistance = 2.0f;
-    victim.character.velocity.x *= pow(0.97f, inWaterResistance);
-    victim.character.velocity.z *= pow(0.97f, inWaterResistance);
+    float in_water_resistance = 2.0f;
+    victim.character.velocity.x *= pow(0.97f, in_water_resistance);
+    victim.character.velocity.z *= pow(0.97f, in_water_resistance);
     if (victim.character.velocity.y > 0.0f) {
-        victim.character.velocity.y *= pow(0.97f, inWaterResistance);
+        victim.character.velocity.y *= pow(0.97f, in_water_resistance);
     }
-    if (length_squared(victim.character.velocity) > 80.0f && victim.character.position.y < hotspotObj.GetTranslation().y) {
+    if (length_squared(victim.character.velocity) > 80.0f && victim.character.position.y < hotspot_obj.GetTranslation().y) {
         victim.character.Execute("GoLimp();");
     }
 }
 
-void ToggleRollingAbility(Victim@ victim, float waterDepth) {
-    float rollThreshold = 0.5f;
-    if (waterDepth < rollThreshold && !victim.allowRoll) {
+void ToggleRollingAbility(Victim@ victim, float water_depth) {
+    float roll_threshold = 0.5f;
+    if (water_depth < roll_threshold && !victim.allow_roll) {
         victim.character.Execute("allow_rolling = true;");
-        victim.allowRoll = true;
-    } else if (waterDepth > rollThreshold && victim.allowRoll) {
+        victim.allow_roll = true;
+    } else if (water_depth > roll_threshold && victim.allow_roll) {
         victim.character.Execute("allow_rolling = false;");
-        victim.allowRoll = false;
+        victim.allow_roll = false;
     }
 }
 
-void ApplyBuoyancy(Victim@ victim, int boneIndex, const vec3& in charPos, const vec3& in hotspotTop) {
-    float velocityMagnitude = length(victim.character.velocity);
-    if (velocityMagnitude > 80.0f && charPos.y < hotspotTop.y) {
+void ApplyBuoyancy(Victim@ victim, int bone_index, const vec3& in char_pos, const vec3& in hotspot_top) {
+    float velocity_magnitude = length(victim.character.velocity);
+    if (velocity_magnitude > 80.0f && char_pos.y < hotspot_top.y) {
         victim.character.Execute("GoLimp();");
     }
-    vec3 localVelocity = hotspotObj.GetRotation() * vec3(params.GetFloat("XVel"), 0.0f, params.GetFloat("ZVel"));
+    vec3 local_velocity = hotspot_obj.GetRotation() * vec3(params.GetFloat("XVel"), 0.0f, params.GetFloat("ZVel"));
     victim.character.rigged_object().ApplyForceToBone(
-        vec3(localVelocity.x, min(100.0f, 100.0f * distance(charPos, hotspotTop)), localVelocity.z),
-        boneIndex
+        vec3(local_velocity.x, min(100.0f, 100.0f * distance(char_pos, hotspot_top)), local_velocity.z),
+        bone_index
     );
 }
 
 void PlayUnderwaterSound(const vec3& in position, float pitch) {
-    int soundID = PlaySound("Data/Sounds/voice/animal2/voice_bunny_groan_3.wav", position);
-    SetSoundPitch(soundID, pitch);
+    int sound_id = PlaySound("Data/Sounds/voice/animal2/voice_bunny_groan_3.wav", position);
+    SetSoundPitch(sound_id, pitch);
 }
 
-int FindVictimIndex(int charId) {
+int FindVictimIndex(int char_id) {
     for (uint i = 0; i < victims.length(); ++i) {
-        if (victims[i].character.GetID() == charId) {
+        if (victims[i].character.GetID() == char_id) {
             return int(i);
         }
     }
@@ -198,14 +198,14 @@ int FindVictimIndex(int charId) {
 
 class Victim {
     MovementObject@ character;
-    float originalSpeed;
-    bool headUnderWater = false;
-    bool allowRoll = true;
-    float headUnderWaterTimer = 0.0f;
+    float original_speed;
+    bool head_under_water = false;
+    bool allow_roll = true;
+    float head_under_water_timer = 0.0f;
 
-    Victim(MovementObject@ charRef) {
-        @character = charRef;
-        originalSpeed = character.GetFloatVar("p_speed_mult");
+    Victim(MovementObject@ char_ref) {
+        @character = char_ref;
+        original_speed = character.GetFloatVar("p_speed_mult");
     }
 
     void Reset() {
@@ -214,7 +214,7 @@ class Victim {
     }
 
     void RestoreCharacterState() {
-        SetCharacterSpeed(originalSpeed);
+        SetCharacterSpeed(original_speed);
         character.Execute("allow_rolling = true;");
     }
 

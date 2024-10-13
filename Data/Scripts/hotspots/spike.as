@@ -20,17 +20,17 @@
 //
 //-----------------------------------------------------------------------------
 
-int spikeCount = 5;
-int spikedCharacterId = -1;
-int spikeTipHotspotId = -1;
-int spikeCollidableId = -1;
-int noGrabId = -1;
+int spike_count = 5;
+int spiked_character_id = -1;
+int spike_tip_hotspot_id = -1;
+int spike_collidable_id = -1;
+int no_grab_id = -1;
 int armed = 0;
-bool isShortSpike = false;
-const bool superSpike = false;
+bool is_short_spike = false;
+const bool k_super_spike = false;
 
 void SetParameters() {
-    isShortSpike = params.HasParam("Short");
+    is_short_spike = params.HasParam("Short");
 }
 
 void Init() {
@@ -38,35 +38,35 @@ void Init() {
 }
 
 void Reset() {
-    spikeCount = 5;
-    spikedCharacterId = -1;
+    spike_count = 5;
+    spiked_character_id = -1;
     armed = 0;
     UpdateObjects();
 }
 
 void Dispose() {
-    DeleteObjectIfExists(spikeCollidableId);
-    DeleteObjectIfExists(spikeTipHotspotId);
-    DeleteObjectIfExists(noGrabId);
+    DeleteObjectIfExists(spike_collidable_id);
+    DeleteObjectIfExists(spike_tip_hotspot_id);
+    DeleteObjectIfExists(no_grab_id);
 }
 
 void HandleEvent(string event, MovementObject@ mo) {
     if (event == "enter") {
-        // OnEnter(mo); // No action needed on enter
+        // No action needed on enter
     } else if (event == "exit") {
-        // OnExit(mo); // No action needed on exit
+        // No action needed on exit
     } else if (event == "reset") {
-        spikeCount = 20;
+        spike_count = 20;
     }
 }
 
 void ReceiveMessage(string msg) {
-    if (superSpike) {
+    if (k_super_spike) {
         return;
     }
     if (msg == "arm_spike") {
         SetArmed(1);
-    } else if (msg == "disarm_spike" && spikedCharacterId == -1) {
+    } else if (msg == "disarm_spike" && spiked_character_id == -1) {
         SetArmed(0);
     }
 }
@@ -99,38 +99,38 @@ void UpdateObjects() {
 }
 
 void CreateSpikeCollidable() {
-    if (spikeCollidableId != -1) {
+    if (spike_collidable_id != -1) {
         return;
     }
-    string spikePath = isShortSpike
+    string spike_path = is_short_spike
         ? "Data/Objects/Environment/camp/sharp_stick_short.xml"
         : "Data/Objects/Environment/camp/sharp_stick_long.xml";
-    spikeCollidableId = CreateObject(spikePath, true);
-    ReadObjectFromID(spikeCollidableId).SetEnabled(true);
+    spike_collidable_id = CreateObject(spike_path, true);
+    ReadObjectFromID(spike_collidable_id).SetEnabled(true);
 }
 
 void CreateSpikeTipHotspot() {
-    if (spikeTipHotspotId != -1) {
+    if (spike_tip_hotspot_id != -1) {
         return;
     }
-    spikeTipHotspotId = CreateObject("Data/Objects/Hotspots/spike_tip.xml", true);
-    Object@ obj = ReadObjectFromID(spikeTipHotspotId);
+    spike_tip_hotspot_id = CreateObject("Data/Objects/Hotspots/spike_tip.xml", true);
+    Object@ obj = ReadObjectFromID(spike_tip_hotspot_id);
     obj.SetEnabled(true);
     obj.GetScriptParams().SetInt("Parent", hotspot.GetID());
 }
 
 void CreateNoGrabHotspot() {
-    if (noGrabId != -1) {
+    if (no_grab_id != -1) {
         return;
     }
-    noGrabId = CreateObject("Data/Objects/Hotspots/no_grab.xml", true);
+    no_grab_id = CreateObject("Data/Objects/Hotspots/no_grab.xml", true);
 }
 
 void UpdateTransforms() {
-    Object@ hotspotObj = ReadObjectFromID(hotspot.GetID());
-    vec3 position = hotspotObj.GetTranslation();
-    quaternion rotation = hotspotObj.GetRotation();
-    vec3 scale = hotspotObj.GetScale();
+    Object@ hotspot_obj = ReadObjectFromID(hotspot.GetID());
+    vec3 position = hotspot_obj.GetTranslation();
+    quaternion rotation = hotspot_obj.GetRotation();
+    vec3 scale = hotspot_obj.GetScale();
 
     UpdateSpikeTipTransform(position, rotation, scale);
     UpdateSpikeCollidableTransform(position, rotation, scale);
@@ -138,42 +138,42 @@ void UpdateTransforms() {
 }
 
 void UpdateSpikeTipTransform(const vec3& in position, const quaternion& in rotation, const vec3& in scale) {
-    if (spikeTipHotspotId == -1) {
+    if (spike_tip_hotspot_id == -1) {
         return;
     }
-    Object@ obj = ReadObjectFromID(spikeTipHotspotId);
+    Object@ obj = ReadObjectFromID(spike_tip_hotspot_id);
     obj.SetRotation(rotation);
     obj.SetTranslation(position + rotation * vec3(0, scale.y * 2 + 0.2f, 0));
     obj.SetScale(vec3(0.2f));
 }
 
 void UpdateSpikeCollidableTransform(const vec3& in position, const quaternion& in rotation, const vec3& in scale) {
-    if (spikeCollidableId == -1 || armed == 1) {
+    if (spike_collidable_id == -1 || armed == 1) {
         return;
     }
-    Object@ obj = ReadObjectFromID(spikeCollidableId);
-    float yScale = scale.y * 2.0f * (isShortSpike ? 0.92f : 0.85f);
+    Object@ obj = ReadObjectFromID(spike_collidable_id);
+    float y_scale = scale.y * 2.0f * (is_short_spike ? 0.92f : 0.85f);
     obj.SetRotation(rotation);
     obj.SetTranslation(position + rotation * vec3(0.03f, 0, 0.0f));
-    obj.SetScale(vec3(1, yScale, 1));
+    obj.SetScale(vec3(1, y_scale, 1));
 }
 
 void UpdateNoGrabTransform(const vec3& in position, const quaternion& in rotation, const vec3& in scale) {
-    if (noGrabId == -1) {
+    if (no_grab_id == -1) {
         return;
     }
-    Object@ obj = ReadObjectFromID(noGrabId);
-    Object@ referenceObj = ReadObjectFromID(spikeCollidableId);
+    Object@ obj = ReadObjectFromID(no_grab_id);
+    Object@ reference_obj = ReadObjectFromID(spike_collidable_id);
     obj.SetRotation(rotation);
     obj.SetTranslation(position);
-    obj.SetScale(vec3(1, scale.y * 0.45f, 1) * referenceObj.GetBoundingBox());
+    obj.SetScale(vec3(1, scale.y * 0.45f, 1) * reference_obj.GetBoundingBox());
 }
 
 void UpdateCollisionState() {
-    if (spikeCollidableId == -1) {
+    if (spike_collidable_id == -1) {
         return;
     }
-    ReadObjectFromID(spikeCollidableId).SetCollisionEnabled(armed == 0);
+    ReadObjectFromID(spike_collidable_id).SetCollisionEnabled(armed == 0);
 }
 
 void CheckForSpikeCollision() {
@@ -182,30 +182,30 @@ void CheckForSpikeCollision() {
     vec3 end = obj.GetTranslation() + obj.GetRotation() * vec3(0, obj.GetScale().y * 2, 0);
     vec3 direction = normalize(end - start);
 
-    vec3 checkStart = superSpike ? start : end - direction * 0.1f;
-    vec3 checkEnd = end + direction * 0.05f;
+    vec3 check_start = k_super_spike ? start : end - direction * 0.1f;
+    vec3 check_end = end + direction * 0.05f;
 
-    col.CheckRayCollisionCharacters(checkStart, checkEnd);
+    col.CheckRayCollisionCharacters(check_start, check_end);
     if (sphere_col.NumContacts() == 0) {
         return;
     }
 
     MovementObject@ character = ReadCharacterID(sphere_col.GetContact(0).id);
-    if (!superSpike && dot(character.velocity, direction) >= 0.0f) {
+    if (!k_super_spike && dot(character.velocity, direction) >= 0.0f) {
         return;
     }
 
-    if (spikeCount > 0) {
+    if (spike_count > 0) {
         character.rigged_object().Stab(
             sphere_col.GetContact(0).position,
             direction,
-            (spikeCount == 4) ? 1 : 0,
+            (spike_count == 4) ? 1 : 0,
             0
         );
-        --spikeCount;
+        --spike_count;
     }
 
-    if (spikedCharacterId != -1) {
+    if (spiked_character_id != -1) {
         return;
     }
 
@@ -221,7 +221,7 @@ void SpikeCharacter(MovementObject@ character, const vec3& in start, const vec3&
 
     PlaySoundGroup("Data/Sounds/weapon_foley/cut/flesh_hit.xml", character.position);
 
-    spikedCharacterId = character.GetID();
+    spiked_character_id = character.GetID();
     if (character.GetIntVar("knocked_out") != _dead) {
         character.Execute(
             "TakeBloodDamage(1.0f);"
@@ -240,9 +240,9 @@ void CheckAndSpikeRagdoll(MovementObject@ character, const vec3& in start, const
     }
 }
 
-void DeleteObjectIfExists(int& inout objectId) {
-    if (objectId != -1) {
-        QueueDeleteObjectID(objectId);
-        objectId = -1;
+void DeleteObjectIfExists(int& inout object_id) {
+    if (object_id != -1) {
+        QueueDeleteObjectID(object_id);
+        object_id = -1;
     }
 }
