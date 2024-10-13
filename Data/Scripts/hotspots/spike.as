@@ -51,11 +51,7 @@ void Dispose() {
 }
 
 void HandleEvent(string event, MovementObject@ mo) {
-    if (event == "enter") {
-        // No action needed on enter
-    } else if (event == "exit") {
-        // No action needed on exit
-    } else if (event == "reset") {
+    if (event == "reset") {
         spike_count = 20;
     }
 }

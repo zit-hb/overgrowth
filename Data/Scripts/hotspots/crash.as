@@ -39,8 +39,6 @@ void SetParameters() {
 void HandleEvent(string event, MovementObject@ mo) {
     if (event == "enter") {
         OnEnter(mo);
-    } else if (event == "exit") {
-        // No action needed on exit
     }
 }
 

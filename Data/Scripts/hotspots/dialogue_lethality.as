@@ -60,7 +60,3 @@ void OnEnter(MovementObject@ mo) {
     }
     played = true;
 }
-
-void OnExit(MovementObject@ mo) {
-    // No action needed on exit
-}

@@ -66,7 +66,3 @@ vec3 RandomVector(float min, float max) {
         RangedRandomFloat(min, max)
     );
 }
-
-void OnExit(MovementObject@ mo) {
-    // No action needed on exit
-}

@@ -95,7 +95,3 @@ bool ShouldPlayDialogue(MovementObject@ mo) {
     }
     return true;
 }
-
-void OnExit(MovementObject@ mo) {
-    // No action needed on exit
-}
