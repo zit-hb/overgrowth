@@ -22,21 +22,29 @@
 //-----------------------------------------------------------------------------
 
 void Init() {
+    // No initialization needed
 }
 
 void SetParameters() {
-	params.AddIntCheckbox("KillNPC", true);
-	params.AddIntCheckbox("KillPlayer", true);
+    params.AddIntCheckbox("KillNPC", true);
+    params.AddIntCheckbox("KillPlayer", true);
 }
 
-void HandleEvent(string event, MovementObject @mo){
-    if(event == "enter"){
+void HandleEvent(string event, MovementObject@ mo) {
+    if (event == "enter") {
         OnEnter(mo);
     }
 }
 
-void OnEnter(MovementObject @mo) {
-    if( (mo.is_player && params.GetInt("KillPlayer") == 1) || (mo.is_player == false && params.GetInt("KillNPC") == 1)) {
-        mo.Execute("TakeBloodDamage(1.0f);Ragdoll(_RGDL_FALL);zone_killed=1;");
+void OnEnter(MovementObject@ mo) {
+    bool kill_player = params.GetInt("KillPlayer") == 1;
+    bool kill_npc = params.GetInt("KillNPC") == 1;
+
+    if ((mo.is_player && kill_player) || (!mo.is_player && kill_npc)) {
+        KillCharacter(mo);
     }
+}
+
+void KillCharacter(MovementObject@ mo) {
+    mo.Execute("TakeBloodDamage(1.0f);Ragdoll(_RGDL_FALL);zone_killed=1;");
 }
