@@ -41,10 +41,9 @@ void SetParameters() {
 }
 
 void HandleEvent(string event, MovementObject @mo) {
-    if (event != "enter") {
-        return;
+    if (event == "enter") {
+        OnEnter(mo);
     }
-    OnEnter(mo);
 }
 
 void OnEnter(MovementObject @mo) {
