@@ -56,7 +56,7 @@ class DrikaSetEnabled : DrikaElement {
             Log(info, "Object does not exist with id " + object_id);
             return false;
         }
-        Object @obj = ReadObjectFromID(object_id);
+        Object@ obj = ReadObjectFromID(object_id);
         obj.SetEnabled(enabled);
         return true;
     }
@@ -65,7 +65,7 @@ class DrikaSetEnabled : DrikaElement {
         if (!ObjectExists(object_id)) {
             return;
         }
-        Object @obj = ReadObjectFromID(object_id);
+        Object@ obj = ReadObjectFromID(object_id);
         obj.SetEnabled(!enabled);
     }
 }

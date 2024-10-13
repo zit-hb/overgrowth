@@ -55,7 +55,7 @@ bool IsPlayerInHotspot() {
         if (!ObjectExists(collides_with[i])) {
             continue;
         }
-        Object @obj = ReadObjectFromID(collides_with[i]);
+        Object@ obj = ReadObjectFromID(collides_with[i]);
         if (obj.GetType() != _movement_object) {
             continue;
         }

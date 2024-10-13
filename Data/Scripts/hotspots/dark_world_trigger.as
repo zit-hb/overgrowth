@@ -39,7 +39,7 @@ void OnEnter(MovementObject@ mo) {
     if (!ObjectExists(dark_world_level_id)) {
         return;
     }
-    Object @obj = ReadObjectFromID(dark_world_level_id);
+    Object@ obj = ReadObjectFromID(dark_world_level_id);
     obj.ReceiveScriptMessage("trigger_enter");
 }
 

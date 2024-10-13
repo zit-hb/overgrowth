@@ -34,7 +34,7 @@ void SetParameters() {
     collectables_needed = max(1, params.GetInt("Collectables needed"));
 }
 
-void HandleEventItem(string event, ItemObject @obj) {
+void HandleEventItem(string event, ItemObject@ obj) {
     if (event == "enter") {
         OnEnterItem(obj);
     } else if (event == "exit") {
@@ -42,7 +42,7 @@ void HandleEventItem(string event, ItemObject @obj) {
     }
 }
 
-void OnEnterItem(ItemObject @obj) {
+void OnEnterItem(ItemObject@ obj) {
     if (obj.GetType() != _collectable) {
         return;
     }
@@ -50,7 +50,7 @@ void OnEnterItem(ItemObject @obj) {
     condition_satisfied = IsConditionSatisfied();
 }
 
-void OnExitItem(ItemObject @obj) {
+void OnExitItem(ItemObject@ obj) {
     if (obj.GetType() != _collectable) {
         return;
     }

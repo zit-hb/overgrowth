@@ -63,7 +63,7 @@ class DrikaCreateParticle : DrikaElement {
             Log(info, "Object does not exist.");
             return false;
         }
-        Object @obj = ReadObjectFromID(object_id);
+        Object@ obj = ReadObjectFromID(object_id);
         for (int i = 0; i < amount; i++) {
             MakeParticle(particle_path, obj.GetTranslation(), vec3(0), GetBloodTint());
         }

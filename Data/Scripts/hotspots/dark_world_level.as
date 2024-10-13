@@ -112,7 +112,7 @@ void ToggleObjectVisibility() {
         while (token_iter.FindNextToken(obj_list)) {
             int target_id = atoi(token_iter.GetToken(obj_list));
             if (ObjectExists(target_id)) {
-                Object @obj = ReadObjectFromID(target_id);
+                Object@ obj = ReadObjectFromID(target_id);
                 obj.SetEnabled(dark == 1 ? dark_world : !dark_world);
             }
         }
@@ -174,7 +174,7 @@ void Draw() {
     if (!EditorModeActive()) {
         return;
     }
-    Object @obj = ReadObjectFromID(hotspot.GetID());
+    Object@ obj = ReadObjectFromID(hotspot.GetID());
     DebugDrawBillboard("Data/Textures/ui/eclipse.tga",
                        obj.GetTranslation(),
                        obj.GetScale()[1] * 2.0,

@@ -60,7 +60,7 @@ class DrikaPlaySound : DrikaElement {
             Log(info, "Object does not exist.");
             return false;
         }
-        Object @obj = ReadObjectFromID(object_id);
+        Object@ obj = ReadObjectFromID(object_id);
         PlaySound(sound_path, obj.GetTranslation());
         return true;
     }

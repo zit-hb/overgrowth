@@ -31,7 +31,7 @@ void SetParameters() {
     params.AddString("Hotspot ID", "ID for the announcing hotspot");
 }
 
-void HandleEventItem(string event, ItemObject @obj) {
+void HandleEventItem(string event, ItemObject@ obj) {
     if (event == "enter") {
         OnItemEnter(obj);
     } else if (event == "exit") {
@@ -39,7 +39,7 @@ void HandleEventItem(string event, ItemObject @obj) {
     }
 }
 
-void OnItemEnter(ItemObject @obj) {
+void OnItemEnter(ItemObject@ obj) {
     if (!IsItemContained(obj.GetID())) {
         contained_items.insertLast(obj.GetID());
     }
@@ -47,7 +47,7 @@ void OnItemEnter(ItemObject @obj) {
     AnnounceContainedItems();
 }
 
-void OnItemExit(ItemObject @obj) {
+void OnItemExit(ItemObject@ obj) {
     RemoveItem(obj.GetID());
     AnnounceItemEvent("exit", obj);
     AnnounceContainedItems();
@@ -71,7 +71,7 @@ void RemoveItem(int id) {
     }
 }
 
-void AnnounceItemEvent(string event, ItemObject @obj) {
+void AnnounceItemEvent(string event, ItemObject@ obj) {
     level.SendMessage("hotspot_announce_items " + params.GetString("Hotspot ID") + " " + event + " " + obj.GetID());
 }
 
