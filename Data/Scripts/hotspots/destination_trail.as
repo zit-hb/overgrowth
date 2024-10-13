@@ -4,7 +4,8 @@
 //    Script Type: Hotspot
 //        License: Read below
 //-----------------------------------------------------------------------------
-//
+
+////
 //   Copyright 2022 Wolfire Games LLC
 //
 //   Licensed under the Apache License, Version 2.0 (the "License");
@@ -20,15 +21,16 @@
 //   limitations under the License.
 //
 //-----------------------------------------------------------------------------
+//
 
 array<int> points;
 string placeholder = "Data/Objects/placeholder/empty_placeholder.xml";
-int pointIndex = 0;
-int trailIndex = 0;
-bool postInitDone = false;
-vec3 trailPos = vec3(0);
-float trailDistance = 0.0f;
-const vec3 originOffset = vec3(0, -0.5f, 0);
+int point_index = 0;
+int trail_index = 0;
+bool post_init_done = false;
+vec3 trail_pos = vec3(0);
+float trail_distance = 0.0f;
+const vec3 origin_offset = vec3(0, -0.5f, 0);
 
 void SetParameters() {
     params.AddInt("NumPoints", 4);
@@ -42,19 +44,19 @@ void Dispose() {
     // Clean up if necessary
 }
 
-void HandleEventItem(string event, ItemObject @obj) {
+void HandleEventItem(string event, ItemObject@ obj) {
     // No item event handling needed
 }
 
 void Reset() {
-    pointIndex = 0;
-    trailIndex = pointIndex;
+    point_index = 0;
+    trail_index = point_index;
 }
 
 void Update() {
-    if (!postInitDone) {
+    if (!post_init_done) {
         InitializePoints();
-        postInitDone = true;
+        post_init_done = true;
     }
     if (points.size() < 2) {
         AddPoint();
@@ -72,80 +74,80 @@ void Update() {
 }
 
 void InitializePoints() {
-    Object @hotspotObj = ReadObjectFromID(hotspot.GetID());
-    hotspotObj.SetScale(vec3(0.125f));
-    hotspotObj.SetCopyable(false);
-    hotspotObj.SetDeletable(true);
-    hotspotObj.SetSelectable(true);
-    hotspotObj.SetTranslatable(true);
-    hotspotObj.SetScalable(false);
-    hotspotObj.SetRotatable(false);
+    Object@ hotspot_obj = ReadObjectFromID(hotspot.GetID());
+    hotspot_obj.SetScale(vec3(0.125f));
+    hotspot_obj.SetCopyable(false);
+    hotspot_obj.SetDeletable(true);
+    hotspot_obj.SetSelectable(true);
+    hotspot_obj.SetTranslatable(true);
+    hotspot_obj.SetScalable(false);
+    hotspot_obj.SetRotatable(false);
     points.insertLast(hotspot.GetID());
     CheckForNewPoints();
 }
 
 void UpdateTrail() {
-    MovementObject @player = ReadCharacter(0);
-    Object @closestPointObj = ReadObjectFromID(points[trailIndex]);
+    MovementObject@ player = ReadCharacter(0);
+    Object@ closest_point_obj = ReadObjectFromID(points[trail_index]);
 
-    if (trailPos == vec3(0) || trailDistance > 10.0f) {
-        trailPos = player.position + originOffset;
-        trailIndex = pointIndex;
-        trailDistance = 0.0f;
+    if (trail_pos == vec3(0) || trail_distance > 10.0f) {
+        trail_pos = player.position + origin_offset;
+        trail_index = point_index;
+        trail_distance = 0.0f;
     }
-    vec3 targetPos = closestPointObj.GetTranslation();
-    vec3 direction = normalize(targetPos - trailPos);
-    MakeParticle("Data/Particles/destination_particle.xml", trailPos, direction);
-    trailPos += (direction * 0.05f);
+    vec3 target_pos = closest_point_obj.GetTranslation();
+    vec3 direction = normalize(target_pos - trail_pos);
+    MakeParticle("Data/Particles/destination_particle.xml", trail_pos, direction);
+    trail_pos += (direction * 0.05f);
 
     float radius = 0.1f;
-    if (distance(trailPos, targetPos) < radius) {
-        if (int(points.size()) > (trailIndex + 1)) {
-            trailIndex++;
+    if (distance(trail_pos, target_pos) < radius) {
+        if (int(points.size()) > (trail_index + 1)) {
+            trail_index++;
         } else {
-            trailPos = player.position + originOffset;
-            trailIndex = pointIndex;
-            trailDistance = 0.0f;
+            trail_pos = player.position + origin_offset;
+            trail_index = point_index;
+            trail_distance = 0.0f;
         }
     }
 }
 
 void CheckForNextPoint() {
-    if (int(points.size()) <= pointIndex + 1) {
+    if (int(points.size()) <= point_index + 1) {
         return;
     }
-    MovementObject @player = ReadCharacter(0);
-    Object @nextPoint = ReadObjectFromID(points[pointIndex + 1]);
-    if (distance(player.position, nextPoint.GetTranslation()) < distanceBetweenPoints(pointIndex, pointIndex + 1)) {
-        pointIndex++;
+    MovementObject@ player = ReadCharacter(0);
+    Object@ next_point = ReadObjectFromID(points[point_index + 1]);
+    if (distance(player.position, next_point.GetTranslation()) < DistanceBetweenPoints(point_index, point_index + 1)) {
+        point_index++;
     }
 }
 
 void CheckForPreviousPoint() {
-    if (pointIndex - 1 < 0) {
+    if (point_index - 1 < 0) {
         return;
     }
-    MovementObject @player = ReadCharacter(0);
-    Object @previousPoint = ReadObjectFromID(points[pointIndex - 1]);
-    if (distance(player.position, previousPoint.GetTranslation()) < distanceBetweenPoints(pointIndex, pointIndex - 1)) {
-        pointIndex--;
+    MovementObject@ player = ReadCharacter(0);
+    Object@ previous_point = ReadObjectFromID(points[point_index - 1]);
+    if (distance(player.position, previous_point.GetTranslation()) < DistanceBetweenPoints(point_index, point_index - 1)) {
+        point_index--;
     }
 }
 
-float distanceBetweenPoints(int indexA, int indexB) {
-    Object @pointA = ReadObjectFromID(points[indexA]);
-    Object @pointB = ReadObjectFromID(points[indexB]);
-    return distance(pointA.GetTranslation(), pointB.GetTranslation());
+float DistanceBetweenPoints(int index_a, int index_b) {
+    Object@ point_a = ReadObjectFromID(points[index_a]);
+    Object@ point_b = ReadObjectFromID(points[index_b]);
+    return distance(point_a.GetTranslation(), point_b.GetTranslation());
 }
 
 void CheckForNewPoints() {
-    array<int> placeholderIDs = GetObjectIDsType(35);
-    for (uint o = 0; o < placeholderIDs.size(); o++) {
-        if (points.find(placeholderIDs[o]) == -1) {
-            Object @placeholder = ReadObjectFromID(placeholderIDs[o]);
-            ScriptParams @placeholderParams = placeholder.GetScriptParams();
-            if (placeholderParams.HasParam("belongsto") && placeholderParams.GetString("belongsto") == ("" + hotspot.GetID())) {
-                points.insertLast(placeholderIDs[o]);
+    array<int> placeholder_ids = GetObjectIDsType(35);
+    for (uint o = 0; o < placeholder_ids.size(); o++) {
+        if (points.find(placeholder_ids[o]) == -1) {
+            Object@ placeholder = ReadObjectFromID(placeholder_ids[o]);
+            ScriptParams@ placeholder_params = placeholder.GetScriptParams();
+            if (placeholder_params.HasParam("belongsto") && placeholder_params.GetString("belongsto") == ("" + hotspot.GetID())) {
+                points.insertLast(placeholder_ids[o]);
             }
         }
     }
@@ -161,26 +163,26 @@ void CheckForDeletedPoints() {
 }
 
 void DrawConnectionLines() {
-    Object @hotspotObj = ReadObjectFromID(hotspot.GetID());
-    vec3 lastPos = hotspotObj.GetTranslation();
+    Object@ hotspot_obj = ReadObjectFromID(hotspot.GetID());
+    vec3 last_pos = hotspot_obj.GetTranslation();
     for (uint i = 0; i < points.size(); i++) {
-        Object @thisPoint = ReadObjectFromID(points[i]);
-        DebugDrawLine(lastPos, thisPoint.GetTranslation(), vec3(1), _delete_on_update);
-        lastPos = thisPoint.GetTranslation();
+        Object@ this_point = ReadObjectFromID(points[i]);
+        DebugDrawLine(last_pos, this_point.GetTranslation(), vec3(1), _delete_on_update);
+        last_pos = this_point.GetTranslation();
     }
 }
 
 void DrawBoxes() {
-    Object @hotspotObj = ReadObjectFromID(hotspot.GetID());
-    Object @lastPoint = ReadObjectFromID(points[points.size() - 1]);
-    DebugDrawWireBox(hotspotObj.GetTranslation(), vec3(0.5f), vec3(1, 0, 0), _delete_on_update);
-    DebugDrawWireBox(lastPoint.GetTranslation(), vec3(0.5f), vec3(0, 1, 0), _delete_on_update);
+    Object@ hotspot_obj = ReadObjectFromID(hotspot.GetID());
+    Object@ last_point = ReadObjectFromID(points[points.size() - 1]);
+    DebugDrawWireBox(hotspot_obj.GetTranslation(), vec3(0.5f), vec3(1, 0, 0), _delete_on_update);
+    DebugDrawWireBox(last_point.GetTranslation(), vec3(0.5f), vec3(0, 1, 0), _delete_on_update);
 }
 
 void AddPoint() {
-    int objectID = CreateObject(placeholder);
-    points.insertLast(objectID);
-    Object @obj = ReadObjectFromID(objectID);
+    int object_id = CreateObject(placeholder);
+    points.insertLast(object_id);
+    Object@ obj = ReadObjectFromID(object_id);
     obj.SetScale(vec3(0.5f));
     obj.SetCopyable(true);
     obj.SetDeletable(true);
@@ -189,6 +191,6 @@ void AddPoint() {
     obj.SetScalable(false);
     obj.SetRotatable(false);
     obj.SetTranslation(ReadObjectFromID(hotspot.GetID()).GetTranslation() + vec3(0, 1, 0));
-    ScriptParams @placeholderParams = obj.GetScriptParams();
-    placeholderParams.AddString("belongsto", "" + hotspot.GetID());
+    ScriptParams@ placeholder_params = obj.GetScriptParams();
+    placeholder_params.AddString("belongsto", "" + hotspot.GetID());
 }
