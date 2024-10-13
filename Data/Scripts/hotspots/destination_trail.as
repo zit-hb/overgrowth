@@ -4,8 +4,7 @@
 //    Script Type: Hotspot
 //        License: Read below
 //-----------------------------------------------------------------------------
-
-////
+//
 //   Copyright 2022 Wolfire Games LLC
 //
 //   Licensed under the Apache License, Version 2.0 (the "License");
@@ -21,7 +20,6 @@
 //   limitations under the License.
 //
 //-----------------------------------------------------------------------------
-//
 
 array<int> points;
 string placeholder = "Data/Objects/placeholder/empty_placeholder.xml";
@@ -38,10 +36,6 @@ void SetParameters() {
 
 void Init() {
     // No additional initialization needed
-}
-
-void Dispose() {
-    // Clean up if necessary
 }
 
 void HandleEventItem(string event, ItemObject@ obj) {
