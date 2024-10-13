@@ -154,7 +154,7 @@ void UpdatePlayerCharacter() {
     if (player_id == -1) {
         return;
     }
-    MovementObject @mo = ReadCharacter(player_id);
+    MovementObject@ mo = ReadCharacter(player_id);
     if (!dark_world) {
         mo.Execute("SwitchCharacter(\"Data/Characters/pale_turner.xml\");");
     } else {

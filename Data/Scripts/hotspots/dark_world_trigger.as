@@ -25,13 +25,13 @@ void SetParameters() {
     params.AddInt("dark_world_level_id", -1);
 }
 
-void HandleEvent(string event, MovementObject @mo) {
+void HandleEvent(string event, MovementObject@ mo) {
     if (event == "enter") {
         OnEnter(mo);
     }
 }
 
-void OnEnter(MovementObject @mo) {
+void OnEnter(MovementObject@ mo) {
     if (!mo.controlled) {
         return;
     }

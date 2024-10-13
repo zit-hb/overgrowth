@@ -54,7 +54,7 @@ void PushCollidingCharacters() {
 
     for (uint i = 0; i < charIDs.size(); ++i) {
         if (ReadObjectFromID(charIDs[i]).GetType() == _movement_object) {
-            MovementObject @mo = ReadCharacterID(charIDs[i]);
+            MovementObject@ mo = ReadCharacterID(charIDs[i]);
             if (!mo.static_char) {
                 ApplyPushForce(mo);
             }
@@ -62,7 +62,7 @@ void PushCollidingCharacters() {
     }
 }
 
-void ApplyPushForce(MovementObject @mo) {
+void ApplyPushForce(MovementObject@ mo) {
     vec3 direction = ReadObjectFromID(hotspot.GetID()).GetRotation() * vec3(0, 0, -1);
     vec3 push_force = -direction * _push_force_mult;
 

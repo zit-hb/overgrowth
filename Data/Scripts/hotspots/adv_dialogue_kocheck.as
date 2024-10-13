@@ -41,13 +41,13 @@ void SetParameters() {
     params.AddString("No Enemies Neutralized", "Default text");
 }
 
-void HandleEvent(string event, MovementObject @mo) {
+void HandleEvent(string event, MovementObject@ mo) {
     if (event == "enter") {
         OnEnter(mo);
     }
 }
 
-void OnEnter(MovementObject @mo) {
+void OnEnter(MovementObject@ mo) {
     if (!ShouldPlayDialogue(mo)) {
         return;
     }
@@ -56,7 +56,7 @@ void OnEnter(MovementObject @mo) {
     played = true;
 }
 
-bool ShouldPlayDialogue(MovementObject @mo) {
+bool ShouldPlayDialogue(MovementObject@ mo) {
     if (params.GetInt("Play Only If Dead") != 0 && mo.GetIntVar("knocked_out") <= 0) {
         return false;
     }
@@ -72,13 +72,13 @@ bool ShouldPlayDialogue(MovementObject @mo) {
     return true;
 }
 
-void PlayDialogue(MovementObject @mo) {
+void PlayDialogue(MovementObject@ mo) {
     int num_chars = GetNumCharacters();
     bool all_conscious = true;
     bool all_neutralized = true;
 
     for (int i = 0; i < num_chars; ++i) {
-        MovementObject @char = ReadCharacter(i);
+        MovementObject@ char = ReadCharacter(i);
         if (!char.controlled && !mo.OnSameTeam(char)) {
             if (char.GetIntVar("knocked_out") > 0) {
                 all_conscious = false;

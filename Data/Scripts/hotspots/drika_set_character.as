@@ -61,7 +61,7 @@ class DrikaSetCharacter : DrikaElement {
             Log(info, "Character does not exist with id " + character_id);
             return false;
         }
-        MovementObject @character = ReadCharacterID(character_id);
+        MovementObject@ character = ReadCharacterID(character_id);
         original_character_path = character.char_path;
         character.char_path = character_path;
         character.Execute(
@@ -76,7 +76,7 @@ class DrikaSetCharacter : DrikaElement {
         if (original_character_path.isEmpty() || !MovementObjectExists(character_id)) {
             return;
         }
-        MovementObject @character = ReadCharacterID(character_id);
+        MovementObject@ character = ReadCharacterID(character_id);
         character.char_path = original_character_path;
         character.Execute(
             "character_getter.Load(this_mo.char_path);" +

@@ -53,7 +53,7 @@ void Update() {
 
     int num_chars = GetNumCharacters();
     for (int i = 0; i < num_chars; ++i) {
-        MovementObject @mo = ReadCharacter(i);
+        MovementObject@ mo = ReadCharacter(i);
         if (IsInsideHotspot(mo.position, pos, scale)) {
             OnEnter(mo);
         }
@@ -67,13 +67,13 @@ bool IsInsideHotspot(vec3 position, vec3 hotspot_pos, vec3 hotspot_scale) {
            position.z > hotspot_pos.z - half_scale.z && position.z < hotspot_pos.z + half_scale.z;
 }
 
-void HandleEvent(string event, MovementObject @mo) {
+void HandleEvent(string event, MovementObject@ mo) {
     if (event == "enter") {
         OnEnter(mo);
     }
 }
 
-void OnEnter(MovementObject @mo) {
+void OnEnter(MovementObject@ mo) {
     if (!ShouldPlayDialogue(mo)) {
         return;
     }
@@ -81,7 +81,7 @@ void OnEnter(MovementObject @mo) {
     played = true;
 }
 
-bool ShouldPlayDialogue(MovementObject @mo) {
+bool ShouldPlayDialogue(MovementObject@ mo) {
     if (params.GetInt("Play only If dead") != 0 && mo.GetIntVar("knocked_out") <= 0) {
         return false;
     }
@@ -102,6 +102,6 @@ bool ShouldPlayDialogue(MovementObject @mo) {
     return true;
 }
 
-void OnExit(MovementObject @mo) {
+void OnExit(MovementObject@ mo) {
     // No action needed on exit
 }

@@ -29,7 +29,7 @@ void SetParameters() {
     // No parameters to set
 }
 
-void HandleEvent(string event, MovementObject @mo) {
+void HandleEvent(string event, MovementObject@ mo) {
     if (event == "enter") {
         OnEnter(mo);
     } else if (event == "exit") {
@@ -37,14 +37,14 @@ void HandleEvent(string event, MovementObject @mo) {
     }
 }
 
-void OnEnter(MovementObject @mo) {
+void OnEnter(MovementObject@ mo) {
     if (!mo.controlled) {
         return;
     }
     level.SendMessage("displayvideo tutorial_video\\video_container.html");
 }
 
-void OnExit(MovementObject @mo) {
+void OnExit(MovementObject@ mo) {
     if (!mo.controlled) {
         return;
     }

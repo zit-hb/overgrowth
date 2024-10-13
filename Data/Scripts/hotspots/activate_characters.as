@@ -25,13 +25,13 @@ void SetParameters() {
     params.AddString("characters", "");
 }
 
-void HandleEvent(string event, MovementObject @mo) {
+void HandleEvent(string event, MovementObject@ mo) {
     if (event == "enter") {
         OnEnter(mo);
     }
 }
 
-void OnEnter(MovementObject @mo) {
+void OnEnter(MovementObject@ mo) {
     if (!mo.controlled || !params.HasParam("characters")) {
         return;
     }

@@ -62,13 +62,13 @@ void ActivateIfNecessary() {
     }
 }
 
-void HandleEvent(string event, MovementObject @mo) {
+void HandleEvent(string event, MovementObject@ mo) {
     if (event == "enter") {
         OnEnter(mo);
     }
 }
 
-void OnEnter(MovementObject @mo) {
+void OnEnter(MovementObject@ mo) {
     if (mo.controlled && params.GetInt("Automatic") == 1) {
         TryToPlayDialogue();
     }
@@ -84,7 +84,7 @@ void TryToPlayDialogue() {
 
 bool IsPlayerInValidState() {
     for (int i = 0, len = GetNumCharacters(); i < len; ++i) {
-        MovementObject @mo = ReadCharacter(i);
+        MovementObject@ mo = ReadCharacter(i);
         if (mo.controlled && mo.QueryIntFunction("int CanPlayDialogue()") == 1) {
             return true;
         }

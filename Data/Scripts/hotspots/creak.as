@@ -38,7 +38,7 @@ void UpdateSounds() {
 }
 
 void PlayRandomCreakSound() {
-    MovementObject @player = ReadCharacterID(player_id);
+    MovementObject@ player = ReadCharacterID(player_id);
     vec3 random_offset = vec3(
         RangedRandomFloat(-10.0f, 10.0f),
         RangedRandomFloat(-10.0f, 10.0f),

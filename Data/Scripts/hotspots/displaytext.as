@@ -29,7 +29,7 @@ void SetParameters() {
     params.AddString("Display Text", "Default text");
 }
 
-void HandleEvent(string event, MovementObject @mo) {
+void HandleEvent(string event, MovementObject@ mo) {
     if (event != "enter" && event != "exit" && event != "disengaged_player_control" && event != "engaged_player_control") {
         return;
     }
@@ -59,7 +59,7 @@ bool IsPlayerInHotspot() {
         if (obj.GetType() != _movement_object) {
             continue;
         }
-        MovementObject @mo1 = ReadCharacterID(collides_with[i]);
+        MovementObject@ mo1 = ReadCharacterID(collides_with[i]);
         if (mo1.controlled) {
             return true;
         }
