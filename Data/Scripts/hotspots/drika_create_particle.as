@@ -1,7 +1,7 @@
 //-----------------------------------------------------------------------------
 //           Name: drika_create_particle.as
 //      Developer: 
-//        Author: Gyrth, Fason7
+//         Author: Gyrth, Fason7
 //    Script Type: Drika Element
 //        License: Read below
 //-----------------------------------------------------------------------------

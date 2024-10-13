@@ -1,7 +1,7 @@
 //-----------------------------------------------------------------------------
 //           Name: drika_hotspot.as
 //      Developer:
-//        Author: Gyrth, Fason7
+//         Author: Gyrth, Fason7
 //    Script Type: Hotspot
 //        License: Read below
 //-----------------------------------------------------------------------------

@@ -1,7 +1,7 @@
 //-----------------------------------------------------------------------------
 //           Name: drika_element.as
 //      Developer:
-//        Author: Gyrth, Fason7
+//         Author: Gyrth, Fason7
 //    Script Type: None
 //        License: Read below
 //-----------------------------------------------------------------------------

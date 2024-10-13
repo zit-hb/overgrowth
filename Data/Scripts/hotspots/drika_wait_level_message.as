@@ -1,7 +1,7 @@
 //-----------------------------------------------------------------------------
 //           Name: drika_wait_level_message.as
 //      Developer:
-//        Author: Gyrth, Fason7
+//         Author: Gyrth, Fason7
 //    Script Type: Drika Element
 //        License: Read below
 //-----------------------------------------------------------------------------
